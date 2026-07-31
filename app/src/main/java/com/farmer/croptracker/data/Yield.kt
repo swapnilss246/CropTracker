@@ -1,4 +1,4 @@
-package com.yourname.croptracker.data // Change to your package
+package com.famrmer.croptracker.data // Change to your package
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

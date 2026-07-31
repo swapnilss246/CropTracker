@@ -1,4 +1,4 @@
-package com.yourname.croptracker.data // Remember to change to your package!
+package com.farmer.croptracker.data // Remember to change to your package!
 
 import android.content.Context
 import androidx.room.Database
