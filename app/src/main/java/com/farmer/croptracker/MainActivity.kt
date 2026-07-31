@@ -3,46 +3,29 @@ package com.farmer.croptracker
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.farmer.croptracker.ui.theme.CroptrackerTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.farmer.croptracker.data.CropDatabase
+import com.farmer.croptracker.ui.HomeScreen
+import com.farmer.croptracker.ui.theme.CropTrackerTheme // This should match whatever the IDE generated
+import com.farmer.croptracker.viewmodel.CropViewModel
+import com.farmer.croptracker.viewmodel.CropViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        
+        // Build the database connection
+        val database = CropDatabase.getDatabase(this)
+        val factory = CropViewModelFactory(database.plotDao())
+
         setContent {
-            CroptrackerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            CropTrackerTheme {
+                // Generate the ViewModel using our factory
+                val viewModel: CropViewModel = viewModel(factory = factory)
+                
+                // Launch the Home Screen!
+                HomeScreen(viewModel = viewModel)
             }
         }
     }
 }
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CroptrackerTheme {
-        Greeting("Android")
-    }
-}
-
