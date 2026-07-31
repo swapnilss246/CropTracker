@@ -1,10 +1,10 @@
-package com.yourname.croptracker.viewmodel // Change to your package
+package com.farmer.croptracker.viewmodel // Change to your package
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.yourname.croptracker.data.Plot
-import com.yourname.croptracker.data.PlotDao
+import com.farmer.croptracker.data.Plot
+import com.farmer.croptracker.data.PlotDao
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
