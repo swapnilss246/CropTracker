@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 // We list all 3 tables here so the database knows about them
-@Database(entities = [Plot::class, Expense::class, Yield::class], version = 1, exportSchema = false)
+@Database(entities = [Plot::class, Expense::class, CropYield::class], version = 1, exportSchema = false)
 abstract class CropDatabase : RoomDatabase() {
     
     abstract fun plotDao(): PlotDao

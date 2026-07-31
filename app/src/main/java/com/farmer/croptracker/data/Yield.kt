@@ -1,15 +1,15 @@
-package com.famrmer.croptracker.data // Change to your package
+package com.farmer.croptracker.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "yields")
-data class Yield(
+data class CropYield(
     @PrimaryKey(autoGenerate = true)
     val yieldId: Int = 0,
-    val plotId: Int, // Links back to the Plot table
+    val plotId: Int, 
     val quantity: Double,
-    val unit: String, // kg, ton, box
+    val unit: String, 
     val marketRate: Double,
     val dateMillis: Long
 )
