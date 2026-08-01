@@ -1,5 +1,6 @@
-package com.farmer.croptracker.ui // Change to your package if needed
+package com.farmer.croptracker.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,12 +14,11 @@ import com.farmer.croptracker.viewmodel.CropViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: CropViewModel) {
-    // 1. We 'collect' the live data from the database. 
-    // Whenever a plot is added, this list updates automatically!
+fun HomeScreen(
+    viewModel: CropViewModel,
+    onPlotClick: (Int, String) -> Unit // NEW: This tells the router to switch screens
+) {
     val plotList by viewModel.allPlots.collectAsState()
-
-    // 2. This remembers whether the "Add Plot" popup should be open or closed
     var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -38,18 +38,16 @@ fun HomeScreen(viewModel: CropViewModel) {
         }
     ) { innerPadding ->
         
-        // 3. This is our scrollable list (RecyclerView replacement)
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
+            modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(plotList) { plot ->
-                // This draws a beautiful card for every plot in the database
                 ElevatedCard(
-                    modifier = Modifier.fillMaxWidth(),
+                    // NEW: Made the card clickable!
+                    modifier = Modifier.fillMaxWidth().clickable { 
+                        onPlotClick(plot.id, plot.plotName) 
+                    },
                     colors = CardDefaults.elevatedCardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                     )
@@ -65,7 +63,6 @@ fun HomeScreen(viewModel: CropViewModel) {
         }
     }
 
-    // 4. The Pop-Up Dialog to add a new plot
     if (showDialog) {
         var plotName by remember { mutableStateOf("") }
         var cropName by remember { mutableStateOf("") }
@@ -76,41 +73,21 @@ fun HomeScreen(viewModel: CropViewModel) {
             title = { Text("Add New Plot") },
             text = {
                 Column {
-                    OutlinedTextField(
-                        value = plotName,
-                        onValueChange = { plotName = it },
-                        label = { Text("Plot Name (e.g. North Field)") },
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-                    )
-                    OutlinedTextField(
-                        value = cropName,
-                        onValueChange = { cropName = it },
-                        label = { Text("Crop (e.g. Wheat)") },
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-                    )
-                    OutlinedTextField(
-                        value = cropBreed,
-                        onValueChange = { cropBreed = it },
-                        label = { Text("Breed/Variety") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    OutlinedTextField(value = plotName, onValueChange = { plotName = it }, label = { Text("Plot Name") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                    OutlinedTextField(value = cropName, onValueChange = { cropName = it }, label = { Text("Crop") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                    OutlinedTextField(value = cropBreed, onValueChange = { cropBreed = it }, label = { Text("Breed/Variety") }, modifier = Modifier.fillMaxWidth())
                 }
             },
             confirmButton = {
                 Button(onClick = {
                     if (plotName.isNotBlank() && cropName.isNotBlank()) {
-                        // Send the data to the ViewModel to save in the database
                         viewModel.addPlot(plotName, cropName, cropBreed)
                         showDialog = false
                     }
-                }) {
-                    Text("Save Plot")
-                }
+                }) { Text("Save Plot") }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text("Cancel")
-                }
+                TextButton(onClick = { showDialog = false }) { Text("Cancel") }
             }
         )
     }
