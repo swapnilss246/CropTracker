@@ -154,9 +154,17 @@ fun HomeScreen(
             }
         )
 
-        // The Date Picker Popup
+        // The Date Picker Popup (Restricted to Today or Past)
         if (showDatePicker) {
-            val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDateMillis)
+            val datePickerState = rememberDatePickerState(
+                initialSelectedDateMillis = selectedDateMillis,
+                selectableDates = object : SelectableDates {
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                        // Blocks any date in the future!
+                        return utcTimeMillis <= System.currentTimeMillis()
+                    }
+                }
+            )
             DatePickerDialog(
                 onDismissRequest = { showDatePicker = false },
                 confirmButton = {

@@ -155,7 +155,14 @@ fun PlotDetailScreen(
         )
 
         if (showDatePicker) {
-            val dateState = rememberDatePickerState(initialSelectedDateMillis = dateMillis)
+            val dateState = rememberDatePickerState(
+                initialSelectedDateMillis = dateMillis,
+                selectableDates = object : SelectableDates {
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                        return utcTimeMillis <= System.currentTimeMillis()
+                    }
+                }
+            )
             DatePickerDialog(
                 onDismissRequest = { showDatePicker = false },
                 confirmButton = { TextButton(onClick = { dateState.selectedDateMillis?.let { dateMillis = it }; showDatePicker = false }) { Text("OK") } }
@@ -203,7 +210,14 @@ fun PlotDetailScreen(
         )
 
         if (showDatePicker) {
-            val dateState = rememberDatePickerState(initialSelectedDateMillis = dateMillis)
+            val dateState = rememberDatePickerState(
+                initialSelectedDateMillis = dateMillis,
+                selectableDates = object : SelectableDates {
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                        return utcTimeMillis <= System.currentTimeMillis()
+                    }
+                }
+            )
             DatePickerDialog(
                 onDismissRequest = { showDatePicker = false },
                 confirmButton = { TextButton(onClick = { dateState.selectedDateMillis?.let { dateMillis = it }; showDatePicker = false }) { Text("OK") } }
