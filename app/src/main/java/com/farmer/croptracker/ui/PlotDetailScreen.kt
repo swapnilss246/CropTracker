@@ -3,6 +3,7 @@ package com.farmer.croptracker.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
@@ -11,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.farmer.croptracker.data.CropYield
 import com.farmer.croptracker.data.Expense
@@ -31,7 +33,6 @@ fun PlotDetailScreen(
     val expenses by viewModel.getExpenses(plotId).collectAsState(initial = emptyList())
     val yields by viewModel.getYields(plotId).collectAsState(initial = emptyList())
 
-    // Dialog & Edit states
     var showExpenseDialog by remember { mutableStateOf(false) }
     var expenseBeingEdited by remember { mutableStateOf<Expense?>(null) }
     
@@ -70,7 +71,9 @@ fun PlotDetailScreen(
                         Column {
                             Text(exp.category, style = MaterialTheme.typography.bodyLarge)
                             Text("₹${exp.cost}", style = MaterialTheme.typography.titleMedium)
-                            Text(formatDate(exp.dateMillis), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                            
+                            val formatter = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
+                            Text(formatter.format(Date(exp.dateMillis)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                         }
                         Row {
                             IconButton(onClick = { expenseBeingEdited = exp; showExpenseDialog = true }) { Icon(Icons.Filled.Edit, "Edit") }
@@ -101,7 +104,9 @@ fun PlotDetailScreen(
                         Column {
                             Text("${yld.quantity} ${yld.unit}", style = MaterialTheme.typography.titleMedium)
                             Text("Rate: ₹${yld.marketRate} / ${yld.unit}", style = MaterialTheme.typography.bodyMedium)
-                            Text(formatDate(yld.dateMillis), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                            
+                            val formatter = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
+                            Text(formatter.format(Date(yld.dateMillis)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                         }
                         Row {
                             IconButton(onClick = { yieldBeingEdited = yld; showYieldDialog = true }) { Icon(Icons.Filled.Edit, "Edit") }
@@ -125,6 +130,7 @@ fun PlotDetailScreen(
         var cost by remember { mutableStateOf(expenseBeingEdited?.cost?.toString() ?: "") }
         var dateMillis by remember { mutableStateOf(expenseBeingEdited?.dateMillis ?: System.currentTimeMillis()) }
         var showDatePicker by remember { mutableStateOf(false) }
+        val formatter = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
 
         AlertDialog(
             onDismissRequest = { showExpenseDialog = false },
@@ -132,14 +138,23 @@ fun PlotDetailScreen(
             text = {
                 Column {
                     OutlinedTextField(value = category, onValueChange = { category = it }, label = { Text("Category") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
-                    OutlinedTextField(value = cost, onValueChange = { cost = it }, label = { Text("Cost") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
-                    OutlinedButton(onClick = { showDatePicker = true }, modifier = Modifier.fillMaxWidth()) { Text("Date: ${formatDate(dateMillis)}") }
+                    
+                    // NEW: Number Keyboard & Prevent typing negative signs
+                    OutlinedTextField(
+                        value = cost, 
+                        onValueChange = { if (!it.contains("-")) cost = it }, 
+                        label = { Text("Cost") }, 
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    )
+                    OutlinedButton(onClick = { showDatePicker = true }, modifier = Modifier.fillMaxWidth()) { Text("Date: ${formatter.format(Date(dateMillis))}") }
                 }
             },
             confirmButton = {
                 Button(onClick = {
                     val costDouble = cost.toDoubleOrNull()
-                    if (category.isNotBlank() && costDouble != null) {
+                    // NEW: Ensure cost is greater than or equal to 0
+                    if (category.isNotBlank() && costDouble != null && costDouble >= 0) {
                         viewModel.addOrUpdateExpense(Expense(
                             expenseId = expenseBeingEdited?.expenseId ?: 0,
                             plotId = plotId,
@@ -158,9 +173,7 @@ fun PlotDetailScreen(
             val dateState = rememberDatePickerState(
                 initialSelectedDateMillis = dateMillis,
                 selectableDates = object : SelectableDates {
-                    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                        return utcTimeMillis <= System.currentTimeMillis()
-                    }
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean { return utcTimeMillis <= System.currentTimeMillis() }
                 }
             )
             DatePickerDialog(
@@ -177,23 +190,40 @@ fun PlotDetailScreen(
         var rate by remember { mutableStateOf(yieldBeingEdited?.marketRate?.toString() ?: "") }
         var dateMillis by remember { mutableStateOf(yieldBeingEdited?.dateMillis ?: System.currentTimeMillis()) }
         var showDatePicker by remember { mutableStateOf(false) }
+        val formatter = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
 
         AlertDialog(
             onDismissRequest = { showYieldDialog = false },
             title = { Text(if (yieldBeingEdited == null) "Add Yield" else "Edit Yield") },
             text = {
                 Column {
-                    OutlinedTextField(value = quantity, onValueChange = { quantity = it }, label = { Text("Quantity") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                    // NEW: Number Keyboard & Prevent typing negative signs
+                    OutlinedTextField(
+                        value = quantity, 
+                        onValueChange = { if (!it.contains("-")) quantity = it }, 
+                        label = { Text("Quantity") }, 
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    )
                     OutlinedTextField(value = unit, onValueChange = { unit = it }, label = { Text("Unit (kg, ton, etc)") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
-                    OutlinedTextField(value = rate, onValueChange = { rate = it }, label = { Text("Rate per Unit") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
-                    OutlinedButton(onClick = { showDatePicker = true }, modifier = Modifier.fillMaxWidth()) { Text("Date: ${formatDate(dateMillis)}") }
+                    
+                    // NEW: Number Keyboard & Prevent typing negative signs
+                    OutlinedTextField(
+                        value = rate, 
+                        onValueChange = { if (!it.contains("-")) rate = it }, 
+                        label = { Text("Rate per Unit") }, 
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    )
+                    OutlinedButton(onClick = { showDatePicker = true }, modifier = Modifier.fillMaxWidth()) { Text("Date: ${formatter.format(Date(dateMillis))}") }
                 }
             },
             confirmButton = {
                 Button(onClick = {
                     val qDouble = quantity.toDoubleOrNull()
                     val rDouble = rate.toDoubleOrNull()
-                    if (qDouble != null && rDouble != null) {
+                    // NEW: Ensure numbers are greater than or equal to 0
+                    if (qDouble != null && rDouble != null && qDouble >= 0 && rDouble >= 0) {
                         viewModel.addOrUpdateYield(CropYield(
                             yieldId = yieldBeingEdited?.yieldId ?: 0,
                             plotId = plotId,
@@ -213,9 +243,7 @@ fun PlotDetailScreen(
             val dateState = rememberDatePickerState(
                 initialSelectedDateMillis = dateMillis,
                 selectableDates = object : SelectableDates {
-                    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                        return utcTimeMillis <= System.currentTimeMillis()
-                    }
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean { return utcTimeMillis <= System.currentTimeMillis() }
                 }
             )
             DatePickerDialog(

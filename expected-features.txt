@@ -1,0 +1,12 @@
+- direct "Open Camera" button to add images — it just requires editing the AndroidManifest.xml file
+- sorting on date basis (plots, expenses and yield, etc everything)
+*- fertilizers and pesticide (Gemini can suggest better name) -- expenses can have the cost of buying the fertilizers but this one is required for below details
+    - what fertilizers/pesticide or antibiotic provided
+    - when?
+    - How much quantity of fertilizers and water used
+    - How it given? - through sray, drip, drenching etc (Gemini can provie list of all the options)
+    - Description field - an extra field which supports multi-line text so that farmer can put other details
+    - images support
+
+- Support of Marathi language for app --- Changing Field Names (Labels): Android has a built-in translation system. Instead of writing "Plot Name" directly in the code, we save it in a file called strings.xml. You can have an English strings.xml, a Hindi strings.xml, etc. The app automatically reads the phone's language setting and translates the whole app instantly! We will add this later.
+- 
