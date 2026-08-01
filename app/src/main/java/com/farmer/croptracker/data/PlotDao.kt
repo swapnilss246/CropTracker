@@ -1,4 +1,4 @@
-package com.farmer.croptracker.data // Remember to change to your package!
+package com.farmer.croptracker.data
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -8,12 +8,23 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PlotDao {
-    // This loads all plots. 'Flow' means it will automatically update the UI 
-    // instantly whenever a new plot is added!
     @Query("SELECT * FROM plots ORDER BY id DESC")
     fun getAllPlots(): Flow<List<Plot>>
 
-    // This saves a new plot to the database
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertPlot(plot: Plot)
+
+    // --- NEW: Load and Save Expenses ---
+    @Query("SELECT * FROM expenses WHERE plotId = :plotId ORDER BY dateMillis DESC")
+    fun getExpensesForPlot(plotId: Int): Flow<List<Expense>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertExpense(expense: Expense)
+
+    // --- NEW: Load and Save Yields ---
+    @Query("SELECT * FROM yields WHERE plotId = :plotId ORDER BY dateMillis DESC")
+    fun getYieldsForPlot(plotId: Int): Flow<List<CropYield>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertYield(yield: CropYield)
 }
