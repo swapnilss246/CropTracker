@@ -20,12 +20,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// Helper function for dates
-private fun formatDate(millis: Long): String {
-    val formatter = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
-    return formatter.format(Date(millis))
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlotDetailScreen(
