@@ -27,4 +27,8 @@ interface PlotDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertYield(yield: CropYield)
+
+    // --- NEW: Delete Plot ---
+    @Query("DELETE FROM plots WHERE id = :plotId")
+    suspend fun deletePlotById(plotId: Int)
 }

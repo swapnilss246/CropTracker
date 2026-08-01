@@ -62,6 +62,13 @@ class CropViewModel(private val plotDao: PlotDao) : ViewModel() {
             plotDao.insertYield(yield)
         }
     }
+
+    // --- NEW: Delete Plot ---
+    fun deletePlot(plotId: Int) {
+        viewModelScope.launch {
+            plotDao.deletePlotById(plotId)
+        }
+    }
 }
 
 class CropViewModelFactory(private val plotDao: PlotDao) : ViewModelProvider.Factory {

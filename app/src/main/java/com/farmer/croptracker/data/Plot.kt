@@ -1,4 +1,4 @@
-package com.farmer.croptracker.data // IMPORTANT: Change "yourname.croptracker" to match your actual package!
+package com.farmer.croptracker.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -10,5 +10,6 @@ data class Plot(
     val plotName: String,
     val cropName: String,
     val cropBreed: String,
-    val imageUri: String? = null // Nullable because they might not add an image immediately
+    val createdAt: Long = System.currentTimeMillis(), // NEW: Automatically saves the exact date it was created
+    val imageUri: String? = null
 )

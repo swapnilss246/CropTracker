@@ -6,17 +6,28 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.farmer.croptracker.viewmodel.CropViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+// Helper function to format the timestamp to 01-Jan-2026
+fun formatDate(millis: Long): String {
+    val formatter = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
+    return formatter.format(Date(millis))
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: CropViewModel,
-    onPlotClick: (Int, String) -> Unit // NEW: This tells the router to switch screens
+    onPlotClick: (Int, String) -> Unit
 ) {
     val plotList by viewModel.allPlots.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
@@ -44,7 +55,6 @@ fun HomeScreen(
         ) {
             items(plotList) { plot ->
                 ElevatedCard(
-                    // NEW: Made the card clickable!
                     modifier = Modifier.fillMaxWidth().clickable { 
                         onPlotClick(plot.id, plot.plotName) 
                     },
@@ -52,11 +62,33 @@ fun HomeScreen(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = plot.plotName, style = MaterialTheme.typography.titleLarge)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(text = "Crop: ${plot.cropName}", style = MaterialTheme.typography.bodyLarge)
-                        Text(text = "Breed: ${plot.cropBreed}", style = MaterialTheme.typography.bodyMedium)
+                    // NEW: A Row to hold the text on the left, and Delete button on the right
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(text = plot.plotName, style = MaterialTheme.typography.titleLarge)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(text = "Crop: ${plot.cropName}", style = MaterialTheme.typography.bodyLarge)
+                            
+                            // NEW: Row to hold breed and date side-by-side
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(text = "Breed: ${plot.cropBreed}", style = MaterialTheme.typography.bodyMedium)
+                                Text(text = "•", style = MaterialTheme.typography.bodyMedium)
+                                Text(text = formatDate(plot.createdAt), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+                            }
+                        }
+                        
+                        // NEW: Delete Button
+                        IconButton(onClick = { viewModel.deletePlot(plot.id) }) {
+                            Icon(
+                                imageVector = Icons.Filled.Delete, 
+                                contentDescription = "Delete Plot",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
                     }
                 }
             }
