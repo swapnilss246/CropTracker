@@ -5,11 +5,26 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.farmer.croptracker.data.CropYield
+import com.farmer.croptracker.data.Expense
 import com.farmer.croptracker.viewmodel.CropViewModel
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+// Helper function for dates
+private fun formatDate(millis: Long): String {
+    val formatter = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
+    return formatter.format(Date(millis))
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -19,26 +34,28 @@ fun PlotDetailScreen(
     viewModel: CropViewModel,
     onNavigateBack: () -> Unit
 ) {
-    // Collect the data for this specific plot
     val expenses by viewModel.getExpenses(plotId).collectAsState(initial = emptyList())
     val yields by viewModel.getYields(plotId).collectAsState(initial = emptyList())
 
-    // Dialog trackers
+    // Dialog & Edit states
     var showExpenseDialog by remember { mutableStateOf(false) }
+    var expenseBeingEdited by remember { mutableStateOf<Expense?>(null) }
+    
     var showYieldDialog by remember { mutableStateOf(false) }
+    var yieldBeingEdited by remember { mutableStateOf<CropYield?>(null) }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(plotName) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
+                    IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             )
         }
     ) { innerPadding ->
@@ -48,16 +65,29 @@ fun PlotDetailScreen(
         ) {
             // --- EXPENSES SECTION ---
             item {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text("Expenses", style = MaterialTheme.typography.titleLarge)
-                    Button(onClick = { showExpenseDialog = true }) { Text("Add") }
+                    Button(onClick = { expenseBeingEdited = null; showExpenseDialog = true }) { Text("Add Expense") }
                 }
             }
             items(expenses) { exp ->
                 Card(modifier = Modifier.fillMaxWidth()) {
-                    Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(exp.category, style = MaterialTheme.typography.bodyLarge)
-                        Text("₹${exp.cost}", style = MaterialTheme.typography.titleMedium) // Used ₹ (Rupee) for India, change if needed!
+                    Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Column {
+                            Text(exp.category, style = MaterialTheme.typography.bodyLarge)
+                            Text("₹${exp.cost}", style = MaterialTheme.typography.titleMedium)
+                            Text(formatDate(exp.dateMillis), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                        }
+                        Row {
+                            IconButton(onClick = { expenseBeingEdited = exp; showExpenseDialog = true }) { Icon(Icons.Filled.Edit, "Edit") }
+                            IconButton(onClick = { 
+                                viewModel.deleteExpense(exp)
+                                coroutineScope.launch {
+                                    val result = snackbarHostState.showSnackbar("Expense deleted", "UNDO")
+                                    if (result == SnackbarResult.ActionPerformed) viewModel.addOrUpdateExpense(exp)
+                                }
+                            }) { Icon(Icons.Filled.Delete, "Delete", tint = MaterialTheme.colorScheme.error) }
+                        }
                     }
                 }
             }
@@ -66,16 +96,29 @@ fun PlotDetailScreen(
 
             // --- YIELDS SECTION ---
             item {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text("Yields & Harvests", style = MaterialTheme.typography.titleLarge)
-                    Button(onClick = { showYieldDialog = true }) { Text("Add") }
+                    Button(onClick = { yieldBeingEdited = null; showYieldDialog = true }) { Text("Add Yield") }
                 }
             }
             items(yields) { yld ->
                 Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
-                        Text("${yld.quantity} ${yld.unit}", style = MaterialTheme.typography.titleMedium)
-                        Text("Rate: ₹${yld.marketRate} per ${yld.unit}", style = MaterialTheme.typography.bodyMedium)
+                    Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Column {
+                            Text("${yld.quantity} ${yld.unit}", style = MaterialTheme.typography.titleMedium)
+                            Text("Rate: ₹${yld.marketRate} / ${yld.unit}", style = MaterialTheme.typography.bodyMedium)
+                            Text(formatDate(yld.dateMillis), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                        }
+                        Row {
+                            IconButton(onClick = { yieldBeingEdited = yld; showYieldDialog = true }) { Icon(Icons.Filled.Edit, "Edit") }
+                            IconButton(onClick = { 
+                                viewModel.deleteYield(yld)
+                                coroutineScope.launch {
+                                    val result = snackbarHostState.showSnackbar("Yield deleted", "UNDO")
+                                    if (result == SnackbarResult.ActionPerformed) viewModel.addOrUpdateYield(yld)
+                                }
+                            }) { Icon(Icons.Filled.Delete, "Delete", tint = MaterialTheme.colorScheme.error) }
+                        }
                     }
                 }
             }
@@ -84,44 +127,65 @@ fun PlotDetailScreen(
 
     // --- EXPENSE DIALOG ---
     if (showExpenseDialog) {
-        var category by remember { mutableStateOf("") }
-        var cost by remember { mutableStateOf("") }
+        var category by remember { mutableStateOf(expenseBeingEdited?.category ?: "") }
+        var cost by remember { mutableStateOf(expenseBeingEdited?.cost?.toString() ?: "") }
+        var dateMillis by remember { mutableStateOf(expenseBeingEdited?.dateMillis ?: System.currentTimeMillis()) }
+        var showDatePicker by remember { mutableStateOf(false) }
 
         AlertDialog(
             onDismissRequest = { showExpenseDialog = false },
-            title = { Text("Add Expense") },
+            title = { Text(if (expenseBeingEdited == null) "Add Expense" else "Edit Expense") },
             text = {
                 Column {
-                    OutlinedTextField(value = category, onValueChange = { category = it }, label = { Text("Category (Seed, Labor, etc.)") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
-                    OutlinedTextField(value = cost, onValueChange = { cost = it }, label = { Text("Total Cost") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = category, onValueChange = { category = it }, label = { Text("Category") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                    OutlinedTextField(value = cost, onValueChange = { cost = it }, label = { Text("Cost") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                    OutlinedButton(onClick = { showDatePicker = true }, modifier = Modifier.fillMaxWidth()) { Text("Date: ${formatDate(dateMillis)}") }
                 }
             },
             confirmButton = {
                 Button(onClick = {
                     val costDouble = cost.toDoubleOrNull()
                     if (category.isNotBlank() && costDouble != null) {
-                        viewModel.addExpense(plotId, category, costDouble)
+                        viewModel.addOrUpdateExpense(Expense(
+                            expenseId = expenseBeingEdited?.expenseId ?: 0,
+                            plotId = plotId,
+                            category = category,
+                            cost = costDouble,
+                            dateMillis = dateMillis
+                        ))
                         showExpenseDialog = false
                     }
                 }) { Text("Save") }
-            }
+            },
+            dismissButton = { TextButton(onClick = { showExpenseDialog = false }) { Text("Cancel") } }
         )
+
+        if (showDatePicker) {
+            val dateState = rememberDatePickerState(initialSelectedDateMillis = dateMillis)
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                confirmButton = { TextButton(onClick = { dateState.selectedDateMillis?.let { dateMillis = it }; showDatePicker = false }) { Text("OK") } }
+            ) { DatePicker(state = dateState) }
+        }
     }
 
     // --- YIELD DIALOG ---
     if (showYieldDialog) {
-        var quantity by remember { mutableStateOf("") }
-        var unit by remember { mutableStateOf("kg") }
-        var rate by remember { mutableStateOf("") }
+        var quantity by remember { mutableStateOf(yieldBeingEdited?.quantity?.toString() ?: "") }
+        var unit by remember { mutableStateOf(yieldBeingEdited?.unit ?: "kg") }
+        var rate by remember { mutableStateOf(yieldBeingEdited?.marketRate?.toString() ?: "") }
+        var dateMillis by remember { mutableStateOf(yieldBeingEdited?.dateMillis ?: System.currentTimeMillis()) }
+        var showDatePicker by remember { mutableStateOf(false) }
 
         AlertDialog(
             onDismissRequest = { showYieldDialog = false },
-            title = { Text("Add Yield") },
+            title = { Text(if (yieldBeingEdited == null) "Add Yield" else "Edit Yield") },
             text = {
                 Column {
                     OutlinedTextField(value = quantity, onValueChange = { quantity = it }, label = { Text("Quantity") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
-                    OutlinedTextField(value = unit, onValueChange = { unit = it }, label = { Text("Unit (kg, ton, box)") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
-                    OutlinedTextField(value = rate, onValueChange = { rate = it }, label = { Text("Market Rate (Per Unit)") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = unit, onValueChange = { unit = it }, label = { Text("Unit (kg, ton, etc)") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                    OutlinedTextField(value = rate, onValueChange = { rate = it }, label = { Text("Rate per Unit") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                    OutlinedButton(onClick = { showDatePicker = true }, modifier = Modifier.fillMaxWidth()) { Text("Date: ${formatDate(dateMillis)}") }
                 }
             },
             confirmButton = {
@@ -129,11 +193,27 @@ fun PlotDetailScreen(
                     val qDouble = quantity.toDoubleOrNull()
                     val rDouble = rate.toDoubleOrNull()
                     if (qDouble != null && rDouble != null) {
-                        viewModel.addYield(plotId, qDouble, unit, rDouble)
+                        viewModel.addOrUpdateYield(CropYield(
+                            yieldId = yieldBeingEdited?.yieldId ?: 0,
+                            plotId = plotId,
+                            quantity = qDouble,
+                            unit = unit,
+                            marketRate = rDouble,
+                            dateMillis = dateMillis
+                        ))
                         showYieldDialog = false
                     }
                 }) { Text("Save") }
-            }
+            },
+            dismissButton = { TextButton(onClick = { showYieldDialog = false }) { Text("Cancel") } }
         )
+
+        if (showDatePicker) {
+            val dateState = rememberDatePickerState(initialSelectedDateMillis = dateMillis)
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                confirmButton = { TextButton(onClick = { dateState.selectedDateMillis?.let { dateMillis = it }; showDatePicker = false }) { Text("OK") } }
+            ) { DatePicker(state = dateState) }
+        }
     }
 }
