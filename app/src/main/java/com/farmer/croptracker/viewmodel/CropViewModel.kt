@@ -15,59 +15,38 @@ import kotlinx.coroutines.launch
 
 class CropViewModel(private val plotDao: PlotDao) : ViewModel() {
 
+    // --- PLOTS ---
     val allPlots: StateFlow<List<Plot>> = plotDao.getAllPlots()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+        .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = emptyList())
 
-    fun addPlot(plotName: String, cropName: String, cropBreed: String) {
-        viewModelScope.launch {
-            plotDao.insertPlot(Plot(plotName = plotName, cropName = cropName, cropBreed = cropBreed))
-        }
+    fun addOrUpdatePlot(plot: Plot) {
+        viewModelScope.launch { plotDao.insertPlot(plot) } // REPLACE handles both add and update!
     }
 
-    // --- NEW: Get Data for a specific plot ---
-    fun getExpenses(plotId: Int): Flow<List<Expense>> {
-        return plotDao.getExpensesForPlot(plotId)
+    fun deletePlot(plot: Plot) {
+        viewModelScope.launch { plotDao.deletePlot(plot) }
     }
 
-    fun getYields(plotId: Int): Flow<List<CropYield>> {
-        return plotDao.getYieldsForPlot(plotId)
+    // --- EXPENSES ---
+    fun getExpenses(plotId: Int): Flow<List<Expense>> = plotDao.getExpensesForPlot(plotId)
+
+    fun addOrUpdateExpense(expense: Expense) {
+        viewModelScope.launch { plotDao.insertExpense(expense) }
     }
 
-    // --- NEW: Save Data ---
-    fun addExpense(plotId: Int, category: String, cost: Double) {
-        viewModelScope.launch {
-            val expense = Expense(
-                plotId = plotId,
-                category = category,
-                cost = cost,
-                dateMillis = System.currentTimeMillis() // Automatically save the exact time
-            )
-            plotDao.insertExpense(expense)
-        }
+    fun deleteExpense(expense: Expense) {
+        viewModelScope.launch { plotDao.deleteExpense(expense) }
     }
 
-    fun addYield(plotId: Int, quantity: Double, unit: String, marketRate: Double) {
-        viewModelScope.launch {
-            val yield = CropYield(
-                plotId = plotId,
-                quantity = quantity,
-                unit = unit,
-                marketRate = marketRate,
-                dateMillis = System.currentTimeMillis() // Automatically save the exact time
-            )
-            plotDao.insertYield(yield)
-        }
+    // --- YIELDS ---
+    fun getYields(plotId: Int): Flow<List<CropYield>> = plotDao.getYieldsForPlot(plotId)
+
+    fun addOrUpdateYield(yield: CropYield) {
+        viewModelScope.launch { plotDao.insertYield(yield) }
     }
 
-    // --- NEW: Delete Plot ---
-    fun deletePlot(plotId: Int) {
-        viewModelScope.launch {
-            plotDao.deletePlotById(plotId)
-        }
+    fun deleteYield(yield: CropYield) {
+        viewModelScope.launch { plotDao.deleteYield(yield) }
     }
 }
 
