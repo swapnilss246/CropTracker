@@ -9,4 +9,11 @@
     - images support
 
 - Support of Marathi language for app --- Changing Field Names (Labels): Android has a built-in translation system. Instead of writing "Plot Name" directly in the code, we save it in a file called strings.xml. You can have an English strings.xml, a Hindi strings.xml, etc. The app automatically reads the phone's language setting and translates the whole app instantly! We will add this later.
-- 
+- Good App icon
+- Images gallery -- If farmer wants to save multiple photos of the plot for reference, he should be able to add it. 
+    - it can have a lebel - optional
+    - date - when captured/added (or can edit just in case the photo is older)
+- Recycle bin -- about to implement
+- Total expenses, total income, total yield should be automatically calculated and displayed.
+- Yield should have fixed list of units (kg, quintal, 25kg crates, etc.)
+
