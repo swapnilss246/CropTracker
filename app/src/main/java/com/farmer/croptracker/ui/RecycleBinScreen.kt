@@ -5,8 +5,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -61,8 +61,8 @@ fun RecycleBinScreen(
                                     Text("Crop: ${plot.cropName}", style = MaterialTheme.typography.bodyMedium)
                                 }
                                 Row {
-                                    IconButton(onClick = { viewModel.restorePlot(plot) }) { Icon(Icons.Filled.Restore, "Restore", tint = MaterialTheme.colorScheme.primary) }
-                                    IconButton(onClick = { viewModel.permanentlyDeletePlot(plot) }) { Icon(Icons.Filled.DeleteForever, "Delete Permanently", tint = MaterialTheme.colorScheme.error) }
+                                    IconButton(onClick = { viewModel.restorePlot(plot) }) { Icon(Icons.Filled.Refresh, "Restore", tint = MaterialTheme.colorScheme.primary) }
+                                    IconButton(onClick = { viewModel.permanentlyDeletePlot(plot) }) { Icon(Icons.Filled.Delete, "Delete Permanently", tint = MaterialTheme.colorScheme.error) }
                                 }
                             }
                         }
@@ -81,8 +81,8 @@ fun RecycleBinScreen(
                                     Text(formatter.format(Date(exp.dateMillis)), style = MaterialTheme.typography.bodyMedium)
                                 }
                                 Row {
-                                    IconButton(onClick = { viewModel.restoreExpense(exp) }) { Icon(Icons.Filled.Restore, "Restore", tint = MaterialTheme.colorScheme.primary) }
-                                    IconButton(onClick = { viewModel.permanentlyDeleteExpense(exp) }) { Icon(Icons.Filled.DeleteForever, "Delete Permanently", tint = MaterialTheme.colorScheme.error) }
+                                    IconButton(onClick = { viewModel.restoreExpense(exp) }) { Icon(Icons.Filled.Refresh, "Restore", tint = MaterialTheme.colorScheme.primary) }
+                                    IconButton(onClick = { viewModel.permanentlyDeleteExpense(exp) }) { Icon(Icons.Filled.Delete, "Delete Permanently", tint = MaterialTheme.colorScheme.error) }
                                 }
                             }
                         }
@@ -101,8 +101,8 @@ fun RecycleBinScreen(
                                     Text(formatter.format(Date(yld.dateMillis)), style = MaterialTheme.typography.bodyMedium)
                                 }
                                 Row {
-                                    IconButton(onClick = { viewModel.restoreYield(yld) }) { Icon(Icons.Filled.Restore, "Restore", tint = MaterialTheme.colorScheme.primary) }
-                                    IconButton(onClick = { viewModel.permanentlyDeleteYield(yld) }) { Icon(Icons.Filled.DeleteForever, "Delete Permanently", tint = MaterialTheme.colorScheme.error) }
+                                    IconButton(onClick = { viewModel.restoreYield(yld) }) { Icon(Icons.Filled.Refresh, "Restore", tint = MaterialTheme.colorScheme.primary) }
+                                    IconButton(onClick = { viewModel.permanentlyDeleteYield(yld) }) { Icon(Icons.Filled.Delete, "Delete Permanently", tint = MaterialTheme.colorScheme.error) }
                                 }
                             }
                         }

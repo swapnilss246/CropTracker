@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.farmer.croptracker.data.Plot
 import com.farmer.croptracker.viewmodel.CropViewModel
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -36,7 +35,6 @@ fun formatDate(millis: Long): String {
     return formatter.format(Date(millis))
 }
 
-// NEW: Copies the selected gallery image into the app's secure internal storage
 fun copyImageToInternalStorage(context: Context, uri: Uri): String? {
     return try {
         val inputStream = context.contentResolver.openInputStream(uri) ?: return null
@@ -58,14 +56,11 @@ fun copyImageToInternalStorage(context: Context, uri: Uri): String? {
 fun HomeScreen(
     viewModel: CropViewModel,
     onPlotClick: (Int, String) -> Unit,
-    onNavigateToRecycleBin: () -> Unit // NEW: Router command
+    onNavigateToRecycleBin: () -> Unit
 ) {
     val plotList by viewModel.allPlots.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     var plotBeingEdited by remember { mutableStateOf<Plot?>(null) }
-    
-    // We can remove the Snackbar variables since we have a real Recycle Bin now!
-    // (If you want to keep the quick Undo, you can, but it is no longer required)
 
     Scaffold(
         topBar = {
@@ -76,7 +71,6 @@ fun HomeScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 actions = {
-                    // NEW: Recycle Bin Button in the top right corner
                     IconButton(onClick = onNavigateToRecycleBin) {
                         Icon(Icons.Filled.Delete, contentDescription = "Recycle Bin")
                     }
@@ -106,14 +100,11 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // NEW: Show the image thumbnail if it exists
                         if (plot.imageUri != null) {
                             AsyncImage(
                                 model = plot.imageUri,
                                 contentDescription = "Plot Image",
-                                modifier = Modifier
-                                    .size(64.dp)
-                                    .clip(RoundedCornerShape(8.dp)),
+                                modifier = Modifier.size(64.dp).clip(RoundedCornerShape(8.dp)),
                                 contentScale = ContentScale.Crop
                             )
                             Spacer(modifier = Modifier.width(16.dp))
@@ -135,15 +126,10 @@ fun HomeScreen(
                                 showDialog = true 
                             }) { Icon(Icons.Filled.Edit, contentDescription = "Edit Plot") }
                             
-                            IconButton(onClick = { 
-                                viewModel.deletePlot(plot)
-                                coroutineScope.launch {
-                                    val result = snackbarHostState.showSnackbar(message = "Plot deleted", actionLabel = "UNDO")
-                                    if (result == SnackbarResult.ActionPerformed) {
-                                        viewModel.addOrUpdatePlot(plot) 
-                                    }
-                                }
-                            }) { Icon(Icons.Filled.Delete, contentDescription = "Delete Plot", tint = MaterialTheme.colorScheme.error) }
+                            // CLEANED UP: Just soft deletes it, no more snackbar!
+                            IconButton(onClick = { viewModel.deletePlot(plot) }) { 
+                                Icon(Icons.Filled.Delete, contentDescription = "Delete Plot", tint = MaterialTheme.colorScheme.error) 
+                            }
                         }
                     }
                 }
@@ -157,20 +143,16 @@ fun HomeScreen(
         var cropName by remember { mutableStateOf(plotBeingEdited?.cropName ?: "") }
         var cropBreed by remember { mutableStateOf(plotBeingEdited?.cropBreed ?: "") }
         var selectedDateMillis by remember { mutableStateOf(plotBeingEdited?.createdAt ?: System.currentTimeMillis()) }
-        var imageUri by remember { mutableStateOf(plotBeingEdited?.imageUri) } // Holds our image path
+        var imageUri by remember { mutableStateOf(plotBeingEdited?.imageUri) }
         
         var showDatePicker by remember { mutableStateOf(false) }
 
-        // NEW: This launcher opens the phone's image gallery
         val imagePickerLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
         ) { uri: Uri? ->
             if (uri != null) {
-                // Copy the selected image to internal storage so it is never lost
                 val savedPath = copyImageToInternalStorage(context, uri)
-                if (savedPath != null) {
-                    imageUri = savedPath
-                }
+                if (savedPath != null) imageUri = savedPath
             }
         }
 
@@ -179,16 +161,11 @@ fun HomeScreen(
             title = { Text(if (plotBeingEdited == null) "Add New Plot" else "Edit Plot") },
             text = {
                 Column {
-                    // NEW: Show the selected image inside the dialog
                     if (imageUri != null) {
                         AsyncImage(
                             model = imageUri,
                             contentDescription = "Selected Image",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(120.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .padding(bottom = 8.dp),
+                            modifier = Modifier.fillMaxWidth().height(120.dp).clip(RoundedCornerShape(8.dp)).padding(bottom = 8.dp),
                             contentScale = ContentScale.Crop
                         )
                     }
@@ -196,9 +173,7 @@ fun HomeScreen(
                     OutlinedButton(
                         onClick = { imagePickerLauncher.launch("image/*") },
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-                    ) {
-                        Text(if (imageUri == null) "Add Photo" else "Change Photo")
-                    }
+                    ) { Text(if (imageUri == null) "Add Photo" else "Change Photo") }
 
                     OutlinedTextField(value = plotName, onValueChange = { plotName = it }, label = { Text("Plot Name") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
                     OutlinedTextField(value = cropName, onValueChange = { cropName = it }, label = { Text("Crop") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
@@ -218,7 +193,7 @@ fun HomeScreen(
                             cropName = cropName,
                             cropBreed = cropBreed,
                             createdAt = selectedDateMillis,
-                            imageUri = imageUri // Save the image path to the database!
+                            imageUri = imageUri
                         )
                         viewModel.addOrUpdatePlot(finalPlot)
                         showDialog = false
@@ -234,9 +209,7 @@ fun HomeScreen(
             val datePickerState = rememberDatePickerState(
                 initialSelectedDateMillis = selectedDateMillis,
                 selectableDates = object : SelectableDates {
-                    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                        return utcTimeMillis <= System.currentTimeMillis()
-                    }
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean { return utcTimeMillis <= System.currentTimeMillis() }
                 }
             )
             DatePickerDialog(
@@ -247,12 +220,8 @@ fun HomeScreen(
                         showDatePicker = false
                     }) { Text("OK") }
                 },
-                dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
-                }
-            ) {
-                DatePicker(state = datePickerState)
-            }
+                dismissButton = { TextButton(onClick = { showDatePicker = false }) { Text("Cancel") } }
+            ) { DatePicker(state = datePickerState) }
         }
     }
 }
