@@ -57,23 +57,30 @@ fun copyImageToInternalStorage(context: Context, uri: Uri): String? {
 @Composable
 fun HomeScreen(
     viewModel: CropViewModel,
-    onPlotClick: (Int, String) -> Unit
+    onPlotClick: (Int, String) -> Unit,
+    onNavigateToRecycleBin: () -> Unit // NEW: Router command
 ) {
     val plotList by viewModel.allPlots.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     var plotBeingEdited by remember { mutableStateOf<Plot?>(null) }
-    val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
+    
+    // We can remove the Snackbar variables since we have a real Recycle Bin now!
+    // (If you want to keep the quick Undo, you can, but it is no longer required)
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("My Farm Plots") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                ),
+                actions = {
+                    // NEW: Recycle Bin Button in the top right corner
+                    IconButton(onClick = onNavigateToRecycleBin) {
+                        Icon(Icons.Filled.Delete, contentDescription = "Recycle Bin")
+                    }
+                }
             )
         },
         floatingActionButton = {

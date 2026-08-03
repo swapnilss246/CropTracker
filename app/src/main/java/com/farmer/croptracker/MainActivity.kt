@@ -13,6 +13,7 @@ import androidx.navigation.navArgument
 import com.farmer.croptracker.data.CropDatabase
 import com.farmer.croptracker.ui.HomeScreen
 import com.farmer.croptracker.ui.PlotDetailScreen
+import com.farmer.croptracker.ui.RecycleBinScreen
 import com.farmer.croptracker.viewmodel.CropViewModel
 import com.farmer.croptracker.viewmodel.CropViewModelFactory
 
@@ -26,23 +27,18 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                // NEW: This is the Navigation Router!
                 val navController = rememberNavController()
 
                 NavHost(navController = navController, startDestination = "home") {
                     
-                    // Route 1: Home Screen
                     composable("home") {
                         HomeScreen(
                             viewModel = viewModel,
-                            onPlotClick = { plotId, plotName ->
-                                // When clicked, navigate to the detail screen URL
-                                navController.navigate("details/$plotId/$plotName")
-                            }
+                            onPlotClick = { plotId, plotName -> navController.navigate("details/$plotId/$plotName") },
+                            onNavigateToRecycleBin = { navController.navigate("recycle_bin") }
                         )
                     }
 
-                    // Route 2: Plot Detail Screen
                     composable(
                         route = "details/{plotId}/{plotName}",
                         arguments = listOf(
@@ -50,13 +46,20 @@ class MainActivity : ComponentActivity() {
                             navArgument("plotName") { type = NavType.StringType }
                         )
                     ) { backStackEntry ->
-                        // Extract the data from the URL
                         val plotId = backStackEntry.arguments?.getInt("plotId") ?: 0
                         val plotName = backStackEntry.arguments?.getString("plotName") ?: "Details"
                         
                         PlotDetailScreen(
                             plotId = plotId,
                             plotName = plotName,
+                            viewModel = viewModel,
+                            onNavigateBack = { navController.popBackStack() }
+                        )
+                    }
+
+                    // NEW ROUTE: The Recycle Bin
+                    composable("recycle_bin") {
+                        RecycleBinScreen(
                             viewModel = viewModel,
                             onNavigateBack = { navController.popBackStack() }
                         )
