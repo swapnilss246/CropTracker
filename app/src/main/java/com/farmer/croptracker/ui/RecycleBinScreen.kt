@@ -24,15 +24,12 @@ fun RecycleBinScreen(
     onNavigateBack: () -> Unit
 ) {
     val deletedPlots by viewModel.deletedPlots.collectAsState(initial = emptyList())
-    val deletedExpenses by viewModel.deletedExpenses.collectAsState(initial = emptyList())
-    val deletedYields by viewModel.deletedYields.collectAsState(initial = emptyList())
-
     val formatter = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Recycle Bin") },
+                title = { Text("Deleted Plots") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
                 },
@@ -41,69 +38,23 @@ fun RecycleBinScreen(
         }
     ) { innerPadding ->
         
-        if (deletedPlots.isEmpty() && deletedExpenses.isEmpty() && deletedYields.isEmpty()) {
+        if (deletedPlots.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
                 Text("Recycle Bin is empty", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // --- PLOTS ---
-                if (deletedPlots.isNotEmpty()) {
-                    item { Text("Deleted Plots", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary) }
-                    items(deletedPlots) { plot ->
-                        Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
-                            Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(plot.plotName, style = MaterialTheme.typography.titleMedium)
-                                    Text("Crop: ${plot.cropName}", style = MaterialTheme.typography.bodyMedium)
-                                }
-                                Row {
-                                    IconButton(onClick = { viewModel.restorePlot(plot) }) { Icon(Icons.Filled.Refresh, "Restore", tint = MaterialTheme.colorScheme.primary) }
-                                    IconButton(onClick = { viewModel.permanentlyDeletePlot(plot) }) { Icon(Icons.Filled.Delete, "Delete Permanently", tint = MaterialTheme.colorScheme.error) }
-                                }
+            LazyColumn(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(deletedPlots) { plot ->
+                    Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                        Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(plot.plotName, style = MaterialTheme.typography.titleMedium)
+                                Text("Crop: ${plot.cropName}", style = MaterialTheme.typography.bodyMedium)
+                                Text("Deleted: ${formatter.format(Date(plot.deletedAtMillis))}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                             }
-                        }
-                    }
-                }
-
-                // --- EXPENSES ---
-                if (deletedExpenses.isNotEmpty()) {
-                    item { Spacer(modifier = Modifier.height(8.dp)) }
-                    item { Text("Deleted Expenses", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary) }
-                    items(deletedExpenses) { exp ->
-                        Card(modifier = Modifier.fillMaxWidth()) {
-                            Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text("${exp.category} - ₹${exp.cost}", style = MaterialTheme.typography.titleMedium)
-                                    Text(formatter.format(Date(exp.dateMillis)), style = MaterialTheme.typography.bodyMedium)
-                                }
-                                Row {
-                                    IconButton(onClick = { viewModel.restoreExpense(exp) }) { Icon(Icons.Filled.Refresh, "Restore", tint = MaterialTheme.colorScheme.primary) }
-                                    IconButton(onClick = { viewModel.permanentlyDeleteExpense(exp) }) { Icon(Icons.Filled.Delete, "Delete Permanently", tint = MaterialTheme.colorScheme.error) }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // --- YIELDS ---
-                if (deletedYields.isNotEmpty()) {
-                    item { Spacer(modifier = Modifier.height(8.dp)) }
-                    item { Text("Deleted Yields", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary) }
-                    items(deletedYields) { yld ->
-                        Card(modifier = Modifier.fillMaxWidth()) {
-                            Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text("${yld.quantity} ${yld.unit}", style = MaterialTheme.typography.titleMedium)
-                                    Text(formatter.format(Date(yld.dateMillis)), style = MaterialTheme.typography.bodyMedium)
-                                }
-                                Row {
-                                    IconButton(onClick = { viewModel.restoreYield(yld) }) { Icon(Icons.Filled.Refresh, "Restore", tint = MaterialTheme.colorScheme.primary) }
-                                    IconButton(onClick = { viewModel.permanentlyDeleteYield(yld) }) { Icon(Icons.Filled.Delete, "Delete Permanently", tint = MaterialTheme.colorScheme.error) }
-                                }
+                            Row {
+                                IconButton(onClick = { viewModel.restorePlot(plot) }) { Icon(Icons.Filled.Refresh, "Restore", tint = MaterialTheme.colorScheme.primary) }
+                                IconButton(onClick = { viewModel.permanentlyDeletePlot(plot) }) { Icon(Icons.Filled.Delete, "Delete Permanently", tint = MaterialTheme.colorScheme.error) }
                             }
                         }
                     }

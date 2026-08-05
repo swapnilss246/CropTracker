@@ -11,5 +11,6 @@ data class Plot(
     val cropBreed: String,
     val createdAt: Long = System.currentTimeMillis(), // NEW: Automatically saves the exact date it was created
     val imageUri: String? = null,
-    val isDeleted: Boolean = false // NEW: Soft delete flag
+    val isDeleted: Boolean = false, // NEW: Soft delete flag
+	val deletedAtMillis: Long = 0 // NEW
 )

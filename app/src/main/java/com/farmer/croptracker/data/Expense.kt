@@ -10,5 +10,6 @@ data class Expense(
     val category: String, // Seed, Fertilizer, Labor, etc.
     val cost: Double,
     val dateMillis: Long, // Storing date as a timestamp
-    val isDeleted: Boolean = false // NEW: Soft delete flag
+    val isDeleted: Boolean = false, // NEW: Soft delete flag
+	val deletedAtMillis: Long = 0 // NEW
 )

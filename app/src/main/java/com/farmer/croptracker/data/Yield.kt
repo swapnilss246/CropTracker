@@ -11,5 +11,6 @@ data class CropYield(
     val unit: String,
     val marketRate: Double,
     val dateMillis: Long,
-    val isDeleted: Boolean = false // NEW: Soft delete flag
+    val isDeleted: Boolean = false, // NEW: Soft delete flag
+    val deletedAtMillis: Long = 0 // NEW
 )
