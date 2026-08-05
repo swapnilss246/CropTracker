@@ -65,4 +65,23 @@ interface PlotDao {
 
     @Delete
     suspend fun permanentlyDeleteYield(yield: CropYield)
+	
+	// --- TREATMENTS ---
+    @Query("SELECT * FROM treatments WHERE plotId = :plotId AND isDeleted = 0 ORDER BY dateMillis DESC")
+    fun getTreatmentsForPlot(plotId: Int): Flow<List<Treatment>>
+
+    @Query("SELECT * FROM treatments WHERE plotId = :plotId AND isDeleted = 1 ORDER BY deletedAtMillis DESC")
+    fun getDeletedTreatmentsForPlot(plotId: Int): Flow<List<Treatment>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTreatment(treatment: Treatment)
+
+    @Query("UPDATE treatments SET isDeleted = 1, deletedAtMillis = :timestamp WHERE treatmentId = :id")
+    suspend fun softDeleteTreatment(id: Int, timestamp: Long)
+
+    @Query("UPDATE treatments SET isDeleted = 0, deletedAtMillis = 0 WHERE treatmentId = :id")
+    suspend fun restoreTreatment(id: Int)
+
+    @Delete
+    suspend fun permanentlyDeleteTreatment(treatment: Treatment)
 }

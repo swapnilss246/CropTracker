@@ -7,6 +7,7 @@ import com.farmer.croptracker.data.Expense
 import com.farmer.croptracker.data.CropYield
 import com.farmer.croptracker.data.Plot
 import com.farmer.croptracker.data.PlotDao
+import com.farmer.croptracker.data.Treatment
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -42,6 +43,15 @@ class CropViewModel(private val plotDao: PlotDao) : ViewModel() {
     fun deleteYield(yield: CropYield) = viewModelScope.launch { plotDao.softDeleteYield(yield.yieldId, System.currentTimeMillis()) }
     fun restoreYield(yield: CropYield) = viewModelScope.launch { plotDao.restoreYield(yield.yieldId) }
     fun permanentlyDeleteYield(yield: CropYield) = viewModelScope.launch { plotDao.permanentlyDeleteYield(yield) }
+
+    // --- TREATMENTS (NEW) ---
+    fun getTreatments(plotId: Int): Flow<List<Treatment>> = plotDao.getTreatmentsForPlot(plotId)
+    fun getDeletedTreatments(plotId: Int): Flow<List<Treatment>> = plotDao.getDeletedTreatmentsForPlot(plotId)
+
+    fun addOrUpdateTreatment(treatment: Treatment) = viewModelScope.launch { plotDao.insertTreatment(treatment) }
+    fun deleteTreatment(treatment: Treatment) = viewModelScope.launch { plotDao.softDeleteTreatment(treatment.treatmentId, System.currentTimeMillis()) }
+    fun restoreTreatment(treatment: Treatment) = viewModelScope.launch { plotDao.restoreTreatment(treatment.treatmentId) }
+    fun permanentlyDeleteTreatment(treatment: Treatment) = viewModelScope.launch { plotDao.permanentlyDeleteTreatment(treatment) }
 }
 
 class CropViewModelFactory(private val plotDao: PlotDao) : ViewModelProvider.Factory {

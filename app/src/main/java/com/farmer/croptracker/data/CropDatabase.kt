@@ -1,12 +1,12 @@
-package com.farmer.croptracker.data // Remember to change to your package!
+package com.farmer.croptracker.data
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-// We list all 3 tables here so the database knows about them
-@Database(entities = [Plot::class, Expense::class, CropYield::class], version = 1, exportSchema = false)
+// NEW: Added Treatment::class to the entities list!
+@Database(entities = [Plot::class, Expense::class, CropYield::class, Treatment::class], version = 1, exportSchema = false)
 abstract class CropDatabase : RoomDatabase() {
     
     abstract fun plotDao(): PlotDao
@@ -16,15 +16,11 @@ abstract class CropDatabase : RoomDatabase() {
         private var Instance: CropDatabase? = null
 
         fun getDatabase(context: Context): CropDatabase {
-            // If the database already exists, return it. Otherwise, build it.
             return Instance ?: synchronized(this) {
-                Room.databaseBuilder(
-                    context.applicationContext,
-                    CropDatabase::class.java,
-                    "crop_database"
-                )
-                .build()
-                .also { Instance = it }
+                Room.databaseBuilder(context, CropDatabase::class.java, "crop_database")
+                    .fallbackToDestructiveMigration() 
+                    .build()
+                    .also { Instance = it }
             }
         }
     }
