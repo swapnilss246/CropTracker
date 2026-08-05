@@ -1,8 +1,12 @@
 package com.farmer.croptracker.ui
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -13,10 +17,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.farmer.croptracker.data.CropYield
 import com.farmer.croptracker.data.Expense
+import com.farmer.croptracker.data.Treatment
 import com.farmer.croptracker.viewmodel.CropViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -30,17 +39,22 @@ fun PlotDetailScreen(
     viewModel: CropViewModel,
     onNavigateBack: () -> Unit
 ) {
-    // Mode Toggle!
     var showRecycleBinMode by remember { mutableStateOf(false) }
 
     // Active Data
+    val treatments by viewModel.getTreatments(plotId).collectAsState(initial = emptyList())
     val expenses by viewModel.getExpenses(plotId).collectAsState(initial = emptyList())
     val yields by viewModel.getYields(plotId).collectAsState(initial = emptyList())
     
     // Deleted Data
+    val deletedTreatments by viewModel.getDeletedTreatments(plotId).collectAsState(initial = emptyList())
     val deletedExpenses by viewModel.getDeletedExpenses(plotId).collectAsState(initial = emptyList())
     val deletedYields by viewModel.getDeletedYields(plotId).collectAsState(initial = emptyList())
 
+    // Dialog States
+    var showTreatmentDialog by remember { mutableStateOf(false) }
+    var treatmentBeingEdited by remember { mutableStateOf<Treatment?>(null) }
+    
     var showExpenseDialog by remember { mutableStateOf(false) }
     var expenseBeingEdited by remember { mutableStateOf<Expense?>(null) }
     
@@ -54,9 +68,9 @@ fun PlotDetailScreen(
             TopAppBar(
                 title = { Text(if (showRecycleBinMode) "$plotName (Bin)" else plotName) },
                 navigationIcon = {
-                    IconButton(onClick = { 
-                        if (showRecycleBinMode) showRecycleBinMode = false else onNavigateBack() 
-                    }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
+                    IconButton(onClick = { if (showRecycleBinMode) showRecycleBinMode = false else onNavigateBack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
                 },
                 actions = {
                     if (!showRecycleBinMode) {
@@ -72,25 +86,58 @@ fun PlotDetailScreen(
         }
     ) { innerPadding ->
         
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            
+            // --- TREATMENTS SECTION ---
+            item {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Text(if (showRecycleBinMode) "Deleted Treatments" else "Crop Treatments", style = MaterialTheme.typography.titleLarge)
+                    if (!showRecycleBinMode) Button(onClick = { treatmentBeingEdited = null; showTreatmentDialog = true }) { Text("Add") }
+                }
+            }
+            
+            val treatmentsList = if (showRecycleBinMode) deletedTreatments else treatments
+            if (treatmentsList.isEmpty() && showRecycleBinMode) item { Text("No deleted treatments.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+
+            items(treatmentsList) { trt ->
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        if (trt.imageUri != null) {
+                            AsyncImage(
+                                model = trt.imageUri, contentDescription = "Treatment Image",
+                                modifier = Modifier.size(64.dp).clip(RoundedCornerShape(8.dp)), contentScale = ContentScale.Crop
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                        }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(trt.treatmentName, style = MaterialTheme.typography.titleMedium)
+                            Text("${trt.applicationMethod} • ${trt.chemicalQuantity}", style = MaterialTheme.typography.bodyMedium)
+                            if (trt.description.isNotBlank()) Text(trt.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(formatter.format(Date(trt.dateMillis)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                        }
+                        Row {
+                            if (showRecycleBinMode) {
+                                IconButton(onClick = { viewModel.restoreTreatment(trt) }) { Icon(Icons.Filled.Refresh, "Restore", tint = MaterialTheme.colorScheme.primary) }
+                                IconButton(onClick = { viewModel.permanentlyDeleteTreatment(trt) }) { Icon(Icons.Filled.Delete, "Delete", tint = MaterialTheme.colorScheme.error) }
+                            } else {
+                                IconButton(onClick = { treatmentBeingEdited = trt; showTreatmentDialog = true }) { Icon(Icons.Filled.Edit, "Edit") }
+                                IconButton(onClick = { viewModel.deleteTreatment(trt) }) { Icon(Icons.Filled.Delete, "Delete", tint = MaterialTheme.colorScheme.error) }
+                            }
+                        }
+                    }
+                }
+            }
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+
             // --- EXPENSES SECTION ---
             item {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text(if (showRecycleBinMode) "Deleted Expenses" else "Expenses", style = MaterialTheme.typography.titleLarge)
-                    if (!showRecycleBinMode) {
-                        Button(onClick = { expenseBeingEdited = null; showExpenseDialog = true }) { Text("Add Expense") }
-                    }
+                    if (!showRecycleBinMode) Button(onClick = { expenseBeingEdited = null; showExpenseDialog = true }) { Text("Add") }
                 }
             }
-            
             val expensesList = if (showRecycleBinMode) deletedExpenses else expenses
-            if (expensesList.isEmpty() && showRecycleBinMode) {
-                item { Text("No deleted expenses.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
-            }
-
+            if (expensesList.isEmpty() && showRecycleBinMode) item { Text("No deleted expenses.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
             items(expensesList) { exp ->
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -98,9 +145,6 @@ fun PlotDetailScreen(
                             Text(exp.category, style = MaterialTheme.typography.bodyLarge)
                             Text("₹${exp.cost}", style = MaterialTheme.typography.titleMedium)
                             Text(formatter.format(Date(exp.dateMillis)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-                            if (showRecycleBinMode) {
-                                Text("Deleted: ${formatter.format(Date(exp.deletedAtMillis))}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-                            }
                         }
                         Row {
                             if (showRecycleBinMode) {
@@ -114,24 +158,17 @@ fun PlotDetailScreen(
                     }
                 }
             }
-
             item { Spacer(modifier = Modifier.height(16.dp)) }
 
             // --- YIELDS SECTION ---
             item {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text(if (showRecycleBinMode) "Deleted Yields" else "Yields & Harvests", style = MaterialTheme.typography.titleLarge)
-                    if (!showRecycleBinMode) {
-                        Button(onClick = { yieldBeingEdited = null; showYieldDialog = true }) { Text("Add Yield") }
-                    }
+                    Text(if (showRecycleBinMode) "Deleted Yields" else "Yields", style = MaterialTheme.typography.titleLarge)
+                    if (!showRecycleBinMode) Button(onClick = { yieldBeingEdited = null; showYieldDialog = true }) { Text("Add") }
                 }
             }
-
             val yieldsList = if (showRecycleBinMode) deletedYields else yields
-            if (yieldsList.isEmpty() && showRecycleBinMode) {
-                item { Text("No deleted yields.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
-            }
-
+            if (yieldsList.isEmpty() && showRecycleBinMode) item { Text("No deleted yields.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
             items(yieldsList) { yld ->
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -139,9 +176,6 @@ fun PlotDetailScreen(
                             Text("${yld.quantity} ${yld.unit}", style = MaterialTheme.typography.titleMedium)
                             Text("Rate: ₹${yld.marketRate} / ${yld.unit}", style = MaterialTheme.typography.bodyMedium)
                             Text(formatter.format(Date(yld.dateMillis)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-                            if (showRecycleBinMode) {
-                                Text("Deleted: ${formatter.format(Date(yld.deletedAtMillis))}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-                            }
                         }
                         Row {
                             if (showRecycleBinMode) {
@@ -158,7 +192,101 @@ fun PlotDetailScreen(
         }
     }
 
-    // --- EXPENSE DIALOG (Keep exactly as it was) ---
+    // --- TREATMENT DIALOG ---
+    if (showTreatmentDialog) {
+        val context = LocalContext.current
+        var tName by remember { mutableStateOf(treatmentBeingEdited?.treatmentName ?: "") }
+        var chemQty by remember { mutableStateOf(treatmentBeingEdited?.chemicalQuantity ?: "") }
+        var waterQty by remember { mutableStateOf(treatmentBeingEdited?.waterQuantity ?: "") }
+        var method by remember { mutableStateOf(treatmentBeingEdited?.applicationMethod ?: "Foliar Spray") }
+        var desc by remember { mutableStateOf(treatmentBeingEdited?.description ?: "") }
+        var dateMillis by remember { mutableStateOf(treatmentBeingEdited?.dateMillis ?: System.currentTimeMillis()) }
+        var imageUri by remember { mutableStateOf(treatmentBeingEdited?.imageUri) }
+        
+        var showDatePicker by remember { mutableStateOf(false) }
+        var expandedDropdown by remember { mutableStateOf(false) }
+
+        val imagePickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
+            if (uri != null) {
+                // Using the shared copyImageToInternalStorage function from the UI package
+                val savedPath = copyImageToInternalStorage(context, uri)
+                if (savedPath != null) imageUri = savedPath
+            }
+        }
+
+        val applicationMethods = listOf(
+            "Foliar Spray" to "Spraying liquid directly onto the leaves",
+            "Drip / Fertigation" to "Injecting into the drip irrigation system",
+            "Soil Drenching" to "Pouring liquid directly onto the soil at the base",
+            "Broadcasting" to "Spreading dry granules by hand or machine",
+            "Seed Treatment" to "Coating seeds with chemicals before planting",
+            "Root Dipping" to "Dipping seedling roots before transplanting",
+            "Other" to "Custom or unlisted method"
+        )
+
+        AlertDialog(
+            onDismissRequest = { showTreatmentDialog = false },
+            title = { Text(if (treatmentBeingEdited == null) "Add Treatment" else "Edit Treatment") },
+            text = {
+                LazyColumn {
+                    item {
+                        if (imageUri != null) {
+                            AsyncImage(model = imageUri, contentDescription = "Treatment Image", modifier = Modifier.fillMaxWidth().height(120.dp).clip(RoundedCornerShape(8.dp)).padding(bottom = 8.dp), contentScale = ContentScale.Crop)
+                        }
+                        OutlinedButton(onClick = { imagePickerLauncher.launch("image/*") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                            Text(if (imageUri == null) "Add Photo/Label" else "Change Photo")
+                        }
+
+                        OutlinedTextField(value = tName, onValueChange = { tName = it }, label = { Text("Name (e.g. Urea, Neem Oil)") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                        OutlinedTextField(value = chemQty, onValueChange = { chemQty = it }, label = { Text("Chemical Qty (e.g. 500ml, 2kg)") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                        OutlinedTextField(value = waterQty, onValueChange = { waterQty = it }, label = { Text("Water Qty (e.g. 200 Liters)") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                        
+                        ExposedDropdownMenuBox(expanded = expandedDropdown, onExpandedChange = { expandedDropdown = !expandedDropdown }) {
+                            OutlinedTextField(
+                                value = method, onValueChange = {}, readOnly = true,
+                                label = { Text("Application Method") }, trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDropdown) },
+                                modifier = Modifier.menuAnchor().fillMaxWidth().padding(bottom = 8.dp)
+                            )
+                            ExposedDropdownMenu(expanded = expandedDropdown, onDismissRequest = { expandedDropdown = false }) {
+                                applicationMethods.forEach { (methodName, detail) ->
+                                    DropdownMenuItem(
+                                        text = { Column { Text(methodName, style = MaterialTheme.typography.bodyLarge); Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) } },
+                                        onClick = { method = methodName; expandedDropdown = false }
+                                    )
+                                }
+                            }
+                        }
+
+                        OutlinedTextField(
+                            value = desc, onValueChange = { desc = it }, label = { Text("Description / Notes") },
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), minLines = 3, maxLines = 5
+                        )
+                        OutlinedButton(onClick = { showDatePicker = true }, modifier = Modifier.fillMaxWidth()) { Text("Date: ${formatter.format(Date(dateMillis))}") }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    if (tName.isNotBlank() && chemQty.isNotBlank()) {
+                        viewModel.addOrUpdateTreatment(Treatment(
+                            treatmentId = treatmentBeingEdited?.treatmentId ?: 0, plotId = plotId, treatmentName = tName,
+                            chemicalQuantity = chemQty, waterQuantity = waterQty, applicationMethod = method,
+                            description = desc, dateMillis = dateMillis, imageUri = imageUri
+                        ))
+                        showTreatmentDialog = false
+                    }
+                }) { Text("Save") }
+            },
+            dismissButton = { TextButton(onClick = { showTreatmentDialog = false }) { Text("Cancel") } }
+        )
+
+        if (showDatePicker) {
+            val dateState = rememberDatePickerState(initialSelectedDateMillis = dateMillis, selectableDates = object : SelectableDates { override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis <= System.currentTimeMillis() })
+            DatePickerDialog(onDismissRequest = { showDatePicker = false }, confirmButton = { TextButton(onClick = { dateState.selectedDateMillis?.let { dateMillis = it }; showDatePicker = false }) { Text("OK") } }) { DatePicker(state = dateState) }
+        }
+    }
+
+    // --- EXPENSE DIALOG (Unchanged logic) ---
     if (showExpenseDialog) {
         var category by remember { mutableStateOf(expenseBeingEdited?.category ?: "") }
         var cost by remember { mutableStateOf(expenseBeingEdited?.cost?.toString() ?: "") }
@@ -179,13 +307,7 @@ fun PlotDetailScreen(
                 Button(onClick = {
                     val costDouble = cost.toDoubleOrNull()
                     if (category.isNotBlank() && costDouble != null && costDouble >= 0) {
-                        viewModel.addOrUpdateExpense(Expense(
-                            expenseId = expenseBeingEdited?.expenseId ?: 0,
-                            plotId = plotId,
-                            category = category,
-                            cost = costDouble,
-                            dateMillis = dateMillis
-                        ))
+                        viewModel.addOrUpdateExpense(Expense(expenseId = expenseBeingEdited?.expenseId ?: 0, plotId = plotId, category = category, cost = costDouble, dateMillis = dateMillis))
                         showExpenseDialog = false
                     }
                 }) { Text("Save") }
@@ -194,18 +316,12 @@ fun PlotDetailScreen(
         )
 
         if (showDatePicker) {
-            val dateState = rememberDatePickerState(
-                initialSelectedDateMillis = dateMillis,
-                selectableDates = object : SelectableDates { override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis <= System.currentTimeMillis() }
-            )
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = { TextButton(onClick = { dateState.selectedDateMillis?.let { dateMillis = it }; showDatePicker = false }) { Text("OK") } }
-            ) { DatePicker(state = dateState) }
+            val dateState = rememberDatePickerState(initialSelectedDateMillis = dateMillis, selectableDates = object : SelectableDates { override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis <= System.currentTimeMillis() })
+            DatePickerDialog(onDismissRequest = { showDatePicker = false }, confirmButton = { TextButton(onClick = { dateState.selectedDateMillis?.let { dateMillis = it }; showDatePicker = false }) { Text("OK") } }) { DatePicker(state = dateState) }
         }
     }
 
-    // --- YIELD DIALOG (Keep exactly as it was) ---
+    // --- YIELD DIALOG (Unchanged logic) ---
     if (showYieldDialog) {
         var quantity by remember { mutableStateOf(yieldBeingEdited?.quantity?.toString() ?: "") }
         var unit by remember { mutableStateOf(yieldBeingEdited?.unit ?: "kg") }
@@ -229,14 +345,7 @@ fun PlotDetailScreen(
                     val qDouble = quantity.toDoubleOrNull()
                     val rDouble = rate.toDoubleOrNull()
                     if (qDouble != null && rDouble != null && qDouble >= 0 && rDouble >= 0) {
-                        viewModel.addOrUpdateYield(CropYield(
-                            yieldId = yieldBeingEdited?.yieldId ?: 0,
-                            plotId = plotId,
-                            quantity = qDouble,
-                            unit = unit,
-                            marketRate = rDouble,
-                            dateMillis = dateMillis
-                        ))
+                        viewModel.addOrUpdateYield(CropYield(yieldId = yieldBeingEdited?.yieldId ?: 0, plotId = plotId, quantity = qDouble, unit = unit, marketRate = rDouble, dateMillis = dateMillis))
                         showYieldDialog = false
                     }
                 }) { Text("Save") }
@@ -245,14 +354,8 @@ fun PlotDetailScreen(
         )
 
         if (showDatePicker) {
-            val dateState = rememberDatePickerState(
-                initialSelectedDateMillis = dateMillis,
-                selectableDates = object : SelectableDates { override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis <= System.currentTimeMillis() }
-            )
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = { TextButton(onClick = { dateState.selectedDateMillis?.let { dateMillis = it }; showDatePicker = false }) { Text("OK") } }
-            ) { DatePicker(state = dateState) }
+            val dateState = rememberDatePickerState(initialSelectedDateMillis = dateMillis, selectableDates = object : SelectableDates { override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis <= System.currentTimeMillis() })
+            DatePickerDialog(onDismissRequest = { showDatePicker = false }, confirmButton = { TextButton(onClick = { dateState.selectedDateMillis?.let { dateMillis = it }; showDatePicker = false }) { Text("OK") } }) { DatePicker(state = dateState) }
         }
     }
 }
