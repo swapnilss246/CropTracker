@@ -1,5 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">CropTracker</string>
+    <string name="app_name">Crop Tracker</string>
+    <string name="my_plots">My Farm Plots</string>
+    <string name="add_plot">Add Plot</string>
+    <string name="crop">Crop</string>
+    <string name="breed">Breed/Variety</string>
+    <string name="expenses">Expenses</string>
+    <string name="yields">Yields &amp; Harvests</string>
+    <string name="treatments">Crop Treatments</string>
+    <string name="recycle_bin">Recycle Bin</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
 </resources>
-

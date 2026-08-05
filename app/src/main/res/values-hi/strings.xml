@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">क्रॉप ट्रैकर</string>
+    <string name="my_plots">मेरे खेत के प्लॉट</string>
+    <string name="add_plot">नया प्लॉट जोड़ें</string>
+    <string name="crop">फसल</string>
+    <string name="breed">किस्म / प्रजाति</string>
+    <string name="expenses">खर्च</string>
+    <string name="yields">उत्पादन और फसल कटाई</string>
+    <string name="treatments">फसल उपचार (खाद/कीटनाशक)</string>
+    <string name="recycle_bin">रीसायकल बिन</string>
+    <string name="save">सुरक्षित करें</string>
+    <string name="cancel">रद्द करें</string>
+</resources>
