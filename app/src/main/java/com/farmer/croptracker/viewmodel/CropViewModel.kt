@@ -19,9 +19,12 @@ class CropViewModel(private val plotDao: PlotDao) : ViewModel() {
     // --- PLOTS ---
     val allPlots: StateFlow<List<Plot>> = plotDao.getAllPlots()
         .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = emptyList())
+    val archivedPlots: Flow<List<Plot>> = plotDao.getArchivedPlots() // NEW
     val deletedPlots: Flow<List<Plot>> = plotDao.getDeletedPlots()
 
     fun addOrUpdatePlot(plot: Plot) = viewModelScope.launch { plotDao.insertPlot(plot) }
+    fun archivePlot(plot: Plot) = viewModelScope.launch { plotDao.archivePlot(plot.id) } // NEW
+    fun unarchivePlot(plot: Plot) = viewModelScope.launch { plotDao.unarchivePlot(plot.id) } // NEW
     fun deletePlot(plot: Plot) = viewModelScope.launch { plotDao.softDeletePlot(plot.id, System.currentTimeMillis()) }
     fun restorePlot(plot: Plot) = viewModelScope.launch { plotDao.restorePlot(plot.id) }
     fun permanentlyDeletePlot(plot: Plot) = viewModelScope.launch { plotDao.permanentlyDeletePlot(plot) }

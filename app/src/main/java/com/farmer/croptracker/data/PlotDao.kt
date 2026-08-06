@@ -10,14 +10,26 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PlotDao {
     // --- PLOTS ---
-    @Query("SELECT * FROM plots WHERE isDeleted = 0 ORDER BY id DESC")
+    // NEW: Now only shows plots that are NOT deleted AND NOT archived
+    @Query("SELECT * FROM plots WHERE isDeleted = 0 AND isArchived = 0 ORDER BY id DESC")
     fun getAllPlots(): Flow<List<Plot>>
 
     @Query("SELECT * FROM plots WHERE isDeleted = 1 ORDER BY deletedAtMillis DESC")
     fun getDeletedPlots(): Flow<List<Plot>>
 
+    // NEW: Fetch archived plots for the future dashboard
+    @Query("SELECT * FROM plots WHERE isDeleted = 0 AND isArchived = 1 ORDER BY id DESC")
+    fun getArchivedPlots(): Flow<List<Plot>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPlot(plot: Plot)
+
+    // NEW: Archiving commands
+    @Query("UPDATE plots SET isArchived = 1 WHERE id = :id")
+    suspend fun archivePlot(id: Int)
+
+    @Query("UPDATE plots SET isArchived = 0 WHERE id = :id")
+    suspend fun unarchivePlot(id: Int)
 
     @Query("UPDATE plots SET isDeleted = 1, deletedAtMillis = :timestamp WHERE id = :id")
     suspend fun softDeletePlot(id: Int, timestamp: Long)
