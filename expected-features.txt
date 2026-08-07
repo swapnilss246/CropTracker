@@ -17,3 +17,4 @@
 - Total expenses, total income, total yield should be automatically calculated and displayed.
 - Yield should have fixed list of units (kg, quintal, 25kg crates, etc.)
 
+
