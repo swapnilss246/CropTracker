@@ -1,5 +1,6 @@
 package com.farmer.croptracker.ui
 
+import androidx.compose.material.icons.filled.PieChart
 import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -64,7 +65,8 @@ fun HomeScreen(
     viewModel: CropViewModel,
     onPlotClick: (Int, String) -> Unit,
     onNavigateToRecycleBin: () -> Unit,
-    onNavigateToHistory: () -> Unit // FIXED: Missing parameter added
+    onNavigateToHistory: () -> Unit,
+    onNavigateToDashboard: () -> Unit // NEW
 ) {
     val plotList by viewModel.allPlots.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
@@ -80,6 +82,9 @@ fun HomeScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 actions = {
+                    IconButton(onClick = onNavigateToDashboard) {
+                        Icon(Icons.Filled.PieChart, contentDescription = "Dashboard")
+                    }
                     IconButton(onClick = onNavigateToHistory) {
                         Icon(Icons.Filled.History, contentDescription = "Historical Plots")
                     }

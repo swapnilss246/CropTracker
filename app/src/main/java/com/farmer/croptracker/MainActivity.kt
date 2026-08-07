@@ -1,5 +1,6 @@
 package com.farmer.croptracker
 
+import com.farmer.croptracker.ui.DashboardScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,7 +38,8 @@ class MainActivity : ComponentActivity() {
                             viewModel = viewModel,
                             onPlotClick = { plotId, plotName -> navController.navigate("details/$plotId/$plotName") },
                             onNavigateToRecycleBin = { navController.navigate("recycle_bin") },
-                            onNavigateToHistory = { navController.navigate("historical_plots") }
+                            onNavigateToHistory = { navController.navigate("historical_plots") },
+                            onNavigateToDashboard = { navController.navigate("dashboard") } // NEW
                         )
                     }
 
@@ -66,6 +68,11 @@ class MainActivity : ComponentActivity() {
                     // NEW ROUTE: Historical Plots
                     composable("historical_plots") {
                         HistoricalPlotsScreen(viewModel = viewModel, onNavigateBack = { navController.popBackStack() })
+                    }
+
+                    // NEW ROUTE: Dashboard
+                    composable("dashboard") {
+                        DashboardScreen(viewModel = viewModel, onNavigateBack = { navController.popBackStack() })
                     }
                 }
             }

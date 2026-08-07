@@ -95,4 +95,22 @@ interface PlotDao {
 
     @Delete
     suspend fun permanentlyDeleteTreatment(treatment: Treatment)
+
+    // --- DASHBOARD STATISTICS ---
+    @Query("SELECT COUNT(id) FROM plots WHERE isArchived = 0 AND isDeleted = 0")
+    fun getActivePlotCount(): Flow<Int?>
+
+    @Query("""
+        SELECT SUM(expenses.cost) FROM expenses 
+        INNER JOIN plots ON expenses.plotId = plots.id 
+        WHERE plots.isArchived = 0 AND plots.isDeleted = 0 AND expenses.isDeleted = 0
+    """)
+    fun getTotalActiveExpenses(): Flow<Double?>
+
+    @Query("""
+        SELECT SUM(yields.quantity * yields.marketRate) FROM yields 
+        INNER JOIN plots ON yields.plotId = plots.id 
+        WHERE plots.isArchived = 0 AND plots.isDeleted = 0 AND yields.isDeleted = 0
+    """)
+    fun getTotalActiveRevenue(): Flow<Double?>
 }
