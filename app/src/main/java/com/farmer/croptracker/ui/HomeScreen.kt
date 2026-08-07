@@ -13,10 +13,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.List // FIXED: Replaced History with List
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -81,7 +81,7 @@ fun HomeScreen(
                 ),
                 actions = {
                     IconButton(onClick = onNavigateToHistory) {
-                        Icon(Icons.Filled.List, contentDescription = "Historical Plots")
+                        Icon(Icons.Filled.History, contentDescription = "Historical Plots")
                     }
                     IconButton(onClick = onNavigateToRecycleBin) {
                         Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.recycle_bin))
@@ -148,7 +148,7 @@ fun HomeScreen(
                         }
                         Row {
                             IconButton(onClick = { viewModel.archivePlot(plot) }) { 
-                                Icon(Icons.Filled.Done, contentDescription = "Archive Plot") 
+                                Icon(Icons.Filled.Archive, contentDescription = "Archive Plot") 
                             }
                             IconButton(onClick = { 
                                 plotBeingEdited = plot
