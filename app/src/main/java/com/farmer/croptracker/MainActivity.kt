@@ -35,7 +35,8 @@ class MainActivity : ComponentActivity() {
                         HomeScreen(
                             viewModel = viewModel,
                             onPlotClick = { plotId, plotName -> navController.navigate("details/$plotId/$plotName") },
-                            onNavigateToRecycleBin = { navController.navigate("recycle_bin") }
+                            onNavigateToRecycleBin = { navController.navigate("recycle_bin") },
+                            onNavigateToHistory = { navController.navigate("historical_plots") } // NEW
                         )
                     }
 
@@ -57,12 +58,13 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    // NEW ROUTE: The Recycle Bin
                     composable("recycle_bin") {
-                        RecycleBinScreen(
-                            viewModel = viewModel,
-                            onNavigateBack = { navController.popBackStack() }
-                        )
+                        RecycleBinScreen(viewModel = viewModel, onNavigateBack = { navController.popBackStack() })
+                    }
+
+                    // NEW ROUTE: Historical Plots
+                    composable("historical_plots") {
+                        HistoricalPlotsScreen(viewModel = viewModel, onNavigateBack = { navController.popBackStack() })
                     }
                 }
             }

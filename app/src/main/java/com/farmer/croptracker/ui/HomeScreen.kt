@@ -1,5 +1,6 @@
 package com.farmer.croptracker.ui
 
+import androidx.compose.material.icons.filled.History
 import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -81,6 +82,10 @@ fun HomeScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 actions = {
+                    // NEW: History Button
+                    IconButton(onClick = onNavigateToHistory) {
+                        Icon(Icons.Filled.History, contentDescription = "Historical Plots")
+                    }
                     IconButton(onClick = onNavigateToRecycleBin) {
                         Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.recycle_bin)) // FIXED STRING
                     }
