@@ -13,7 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
@@ -166,7 +166,7 @@ fun HomeScreen(
                         }
                         Row {
                             IconButton(onClick = { viewModel.archivePlot(plot) }) { 
-                                Icon(Icons.Filled.Archive, contentDescription = "Archive Plot") 
+                                Icon(Icons.Filled.Done, contentDescription = "Archive Plot") 
                             }
                             IconButton(onClick = { 
                                 plotBeingEdited = plot
