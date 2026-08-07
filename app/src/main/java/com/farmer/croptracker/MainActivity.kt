@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.farmer.croptracker.data.CropDatabase
 import com.farmer.croptracker.ui.HomeScreen
+import com.farmer.croptracker.ui.HistoricalPlotsScreen // FIXED: Added missing import!
 import com.farmer.croptracker.ui.PlotDetailScreen
 import com.farmer.croptracker.ui.RecycleBinScreen
 import com.farmer.croptracker.viewmodel.CropViewModel
@@ -36,7 +37,7 @@ class MainActivity : ComponentActivity() {
                             viewModel = viewModel,
                             onPlotClick = { plotId, plotName -> navController.navigate("details/$plotId/$plotName") },
                             onNavigateToRecycleBin = { navController.navigate("recycle_bin") },
-                            onNavigateToHistory = { navController.navigate("historical_plots") } // NEW
+                            onNavigateToHistory = { navController.navigate("historical_plots") }
                         )
                     }
 

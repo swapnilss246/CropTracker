@@ -1,6 +1,5 @@
 package com.farmer.croptracker.ui
 
-import androidx.compose.material.icons.filled.History
 import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,6 +16,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.List // FIXED: Replaced History with List
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,7 +37,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// (Keep formatDate and copyImageToInternalStorage exactly the same)
 fun formatDate(millis: Long): String {
     val formatter = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
     return formatter.format(Date(millis))
@@ -64,33 +63,30 @@ fun copyImageToInternalStorage(context: Context, uri: Uri): String? {
 fun HomeScreen(
     viewModel: CropViewModel,
     onPlotClick: (Int, String) -> Unit,
-    onNavigateToRecycleBin: () -> Unit
+    onNavigateToRecycleBin: () -> Unit,
+    onNavigateToHistory: () -> Unit // FIXED: Missing parameter added
 ) {
     val plotList by viewModel.allPlots.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     var plotBeingEdited by remember { mutableStateOf<Plot?>(null) }
-    
-    // NEW: Language Menu State
     var showLangMenu by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.my_plots)) }, // FIXED STRING
+                title = { Text(stringResource(R.string.my_plots)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 actions = {
-                    // NEW: History Button
                     IconButton(onClick = onNavigateToHistory) {
-                        Icon(Icons.Filled.History, contentDescription = "Historical Plots")
+                        Icon(Icons.Filled.List, contentDescription = "Historical Plots")
                     }
                     IconButton(onClick = onNavigateToRecycleBin) {
-                        Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.recycle_bin)) // FIXED STRING
+                        Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.recycle_bin))
                     }
                     
-                    // NEW: Language Switcher Menu
                     Box {
                         IconButton(onClick = { showLangMenu = true }) {
                             Icon(Icons.Filled.MoreVert, contentDescription = "Languages")
@@ -99,27 +95,9 @@ fun HomeScreen(
                             expanded = showLangMenu,
                             onDismissRequest = { showLangMenu = false }
                         ) {
-                            DropdownMenuItem(
-                                text = { Text("English") },
-                                onClick = { 
-                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
-                                    showLangMenu = false 
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("हिंदी") },
-                                onClick = { 
-                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("hi"))
-                                    showLangMenu = false 
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("मराठी") },
-                                onClick = { 
-                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("mr"))
-                                    showLangMenu = false 
-                                }
-                            )
+                            DropdownMenuItem(text = { Text("English") }, onClick = { AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en")); showLangMenu = false })
+                            DropdownMenuItem(text = { Text("हिंदी") }, onClick = { AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("hi")); showLangMenu = false })
+                            DropdownMenuItem(text = { Text("मराठी") }, onClick = { AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("mr")); showLangMenu = false })
                         }
                     }
                 }
@@ -130,7 +108,7 @@ fun HomeScreen(
                 plotBeingEdited = null 
                 showDialog = true 
             }) {
-                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add_plot)) // FIXED STRING
+                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add_plot))
             }
         }
     ) { innerPadding ->
@@ -161,7 +139,6 @@ fun HomeScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(text = plot.plotName, style = MaterialTheme.typography.titleLarge)
                             Spacer(modifier = Modifier.height(4.dp))
-                            // FIXED STRINGS
                             Text(text = "${stringResource(R.string.crop)}: ${plot.cropName}", style = MaterialTheme.typography.bodyLarge)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text(text = "${stringResource(R.string.breed)}: ${plot.cropBreed}", style = MaterialTheme.typography.bodyMedium)
@@ -198,9 +175,7 @@ fun HomeScreen(
         
         var showDatePicker by remember { mutableStateOf(false) }
 
-        val imagePickerLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.GetContent()
-        ) { uri: Uri? ->
+        val imagePickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
             if (uri != null) {
                 val savedPath = copyImageToInternalStorage(context, uri)
                 if (savedPath != null) imageUri = savedPath
@@ -238,25 +213,23 @@ fun HomeScreen(
             confirmButton = {
                 Button(onClick = {
                     if (plotName.isNotBlank() && cropName.isNotBlank()) {
-                        val finalPlot = Plot(
+                        viewModel.addOrUpdatePlot(Plot(
                             id = plotBeingEdited?.id ?: 0,
                             plotName = plotName,
                             cropName = cropName,
                             cropBreed = cropBreed,
                             createdAt = selectedDateMillis,
                             imageUri = imageUri
-                        )
-                        viewModel.addOrUpdatePlot(finalPlot)
+                        ))
                         showDialog = false
                     }
-                }) { Text(stringResource(R.string.save)) } // FIXED STRING
+                }) { Text(stringResource(R.string.save)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) { Text(stringResource(R.string.cancel)) } // FIXED STRING
+                TextButton(onClick = { showDialog = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
 
-        // (Date Picker remains unchanged)
         if (showDatePicker) {
             val datePickerState = rememberDatePickerState(
                 initialSelectedDateMillis = selectedDateMillis,
