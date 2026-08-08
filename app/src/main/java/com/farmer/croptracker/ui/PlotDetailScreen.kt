@@ -51,6 +51,14 @@ fun PlotDetailScreen(
     val deletedExpenses by viewModel.getDeletedExpenses(plotId).collectAsState(initial = emptyList())
     val deletedYields by viewModel.getDeletedYields(plotId).collectAsState(initial = emptyList())
 
+    // Plot Financials
+    val plotExpensesFlow by viewModel.getPlotExpensesTotal(plotId).collectAsState(initial = 0.0)
+    val plotRevenueFlow by viewModel.getPlotRevenueTotal(plotId).collectAsState(initial = 0.0)
+    
+    val pExpenses = plotExpensesFlow ?: 0.0
+    val pRevenue = plotRevenueFlow ?: 0.0
+    val pProfit = pRevenue - pExpenses
+
     // Dialog States
     var showTreatmentDialog by remember { mutableStateOf(false) }
     var treatmentBeingEdited by remember { mutableStateOf<Treatment?>(null) }
@@ -88,6 +96,36 @@ fun PlotDetailScreen(
         
         LazyColumn(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             
+            // --- MINI DASHBOARD SECTION ---
+            if (!showRecycleBinMode) {
+                item {
+                    ElevatedCard(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        colors = CardDefaults.elevatedCardColors(
+                            containerColor = if (pProfit >= 0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("Expenses", style = MaterialTheme.typography.labelLarge)
+                                Text("₹$pExpenses", style = MaterialTheme.typography.titleMedium)
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("Revenue", style = MaterialTheme.typography.labelLarge)
+                                Text("₹$pRevenue", style = MaterialTheme.typography.titleMedium)
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("Profit", style = MaterialTheme.typography.labelLarge)
+                                Text("₹$pProfit", style = MaterialTheme.typography.titleMedium)
+                            }
+                        }
+                    }
+                }
+            }
+
             // --- TREATMENTS SECTION ---
             item {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {

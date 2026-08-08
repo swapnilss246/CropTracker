@@ -113,4 +113,11 @@ interface PlotDao {
         WHERE plots.isArchived = 0 AND plots.isDeleted = 0 AND yields.isDeleted = 0
     """)
     fun getTotalActiveRevenue(): Flow<Double?>
+
+    // --- INDIVIDUAL PLOT STATS ---
+    @Query("SELECT SUM(cost) FROM expenses WHERE plotId = :plotId AND isDeleted = 0")
+    fun getPlotExpensesTotal(plotId: Int): Flow<Double?>
+
+    @Query("SELECT SUM(quantity * marketRate) FROM yields WHERE plotId = :plotId AND isDeleted = 0")
+    fun getPlotRevenueTotal(plotId: Int): Flow<Double?>
 }

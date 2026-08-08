@@ -27,6 +27,10 @@ class CropViewModel(private val plotDao: PlotDao) : ViewModel() {
     val totalActiveExpenses: Flow<Double?> = plotDao.getTotalActiveExpenses()
     val totalActiveRevenue: Flow<Double?> = plotDao.getTotalActiveRevenue()
 
+    // --- INDIVIDUAL PLOT STATS ---
+    fun getPlotExpensesTotal(plotId: Int): Flow<Double?> = plotDao.getPlotExpensesTotal(plotId)
+    fun getPlotRevenueTotal(plotId: Int): Flow<Double?> = plotDao.getPlotRevenueTotal(plotId)
+
     fun addOrUpdatePlot(plot: Plot) = viewModelScope.launch { plotDao.insertPlot(plot) }
     fun archivePlot(plot: Plot) = viewModelScope.launch { plotDao.archivePlot(plot.id) } // NEW
     fun unarchivePlot(plot: Plot) = viewModelScope.launch { plotDao.unarchivePlot(plot.id) } // NEW
