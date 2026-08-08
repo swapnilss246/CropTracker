@@ -43,17 +43,14 @@ fun PlotDetailScreen(
 ) {
     var showRecycleBinMode by remember { mutableStateOf(false) }
 
-    // Active Data
     val treatments by viewModel.getTreatments(plotId).collectAsState(initial = emptyList())
     val expenses by viewModel.getExpenses(plotId).collectAsState(initial = emptyList())
     val yields by viewModel.getYields(plotId).collectAsState(initial = emptyList())
     
-    // Deleted Data
     val deletedTreatments by viewModel.getDeletedTreatments(plotId).collectAsState(initial = emptyList())
     val deletedExpenses by viewModel.getDeletedExpenses(plotId).collectAsState(initial = emptyList())
     val deletedYields by viewModel.getDeletedYields(plotId).collectAsState(initial = emptyList())
 
-    // Plot Financials
     val plotExpensesFlow by viewModel.getPlotExpensesTotal(plotId).collectAsState(initial = 0.0)
     val plotRevenueFlow by viewModel.getPlotRevenueTotal(plotId).collectAsState(initial = 0.0)
     
@@ -61,7 +58,6 @@ fun PlotDetailScreen(
     val pRevenue = plotRevenueFlow ?: 0.0
     val pProfit = pRevenue - pExpenses
 
-    // Dialog States
     var showTreatmentDialog by remember { mutableStateOf(false) }
     var treatmentBeingEdited by remember { mutableStateOf<Treatment?>(null) }
     
@@ -76,7 +72,7 @@ fun PlotDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (showRecycleBinMode) "$plotName (Bin)" else plotName) },
+                title = { Text(if (showRecycleBinMode) "$plotName (${stringResource(R.string.bin)})" else plotName) },
                 navigationIcon = {
                     IconButton(onClick = { if (showRecycleBinMode) showRecycleBinMode = false else onNavigateBack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -84,7 +80,7 @@ fun PlotDetailScreen(
                 },
                 actions = {
                     if (!showRecycleBinMode) {
-                        IconButton(onClick = { showRecycleBinMode = true }) { Icon(Icons.Filled.Delete, "Bin") }
+                        IconButton(onClick = { showRecycleBinMode = true }) { Icon(Icons.Filled.Delete, stringResource(R.string.bin)) }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -96,7 +92,6 @@ fun PlotDetailScreen(
         
         LazyColumn(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             
-            // --- MINI DASHBOARD SECTION ---
             if (!showRecycleBinMode) {
                 item {
                     ElevatedCard(
@@ -126,12 +121,12 @@ fun PlotDetailScreen(
             // --- TREATMENTS SECTION ---
             item {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text(if (showRecycleBinMode) "Deleted Treatments" else stringResource(R.string.treatments), style = MaterialTheme.typography.titleLarge)
+                    Text(if (showRecycleBinMode) stringResource(R.string.deleted_treatments) else stringResource(R.string.treatments), style = MaterialTheme.typography.titleLarge)
                     if (!showRecycleBinMode) Button(onClick = { treatmentBeingEdited = null; showTreatmentDialog = true }) { Text(stringResource(R.string.add)) }
                 }
             }
-            
             val treatmentsList = if (showRecycleBinMode) deletedTreatments else treatments
+            if (treatmentsList.isEmpty() && showRecycleBinMode) item { Text(stringResource(R.string.no_deleted_treatments), color = MaterialTheme.colorScheme.onSurfaceVariant) }
             items(treatmentsList) { trt ->
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -162,11 +157,12 @@ fun PlotDetailScreen(
             // --- EXPENSES SECTION ---
             item {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text(if (showRecycleBinMode) "Deleted Expenses" else stringResource(R.string.expenses), style = MaterialTheme.typography.titleLarge)
+                    Text(if (showRecycleBinMode) stringResource(R.string.deleted_expenses) else stringResource(R.string.expenses), style = MaterialTheme.typography.titleLarge)
                     if (!showRecycleBinMode) Button(onClick = { expenseBeingEdited = null; showExpenseDialog = true }) { Text(stringResource(R.string.add)) }
                 }
             }
             val expensesList = if (showRecycleBinMode) deletedExpenses else expenses
+            if (expensesList.isEmpty() && showRecycleBinMode) item { Text(stringResource(R.string.no_deleted_expenses), color = MaterialTheme.colorScheme.onSurfaceVariant) }
             items(expensesList) { exp ->
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -189,20 +185,21 @@ fun PlotDetailScreen(
             }
             item { Spacer(modifier = Modifier.height(16.dp)) }
 
-            // --- YIELDS SECTION ---
+            // --- HARVESTS SECTION ---
             item {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text(if (showRecycleBinMode) "Deleted Yields" else stringResource(R.string.yields), style = MaterialTheme.typography.titleLarge)
+                    Text(if (showRecycleBinMode) stringResource(R.string.deleted_harvests) else stringResource(R.string.yields), style = MaterialTheme.typography.titleLarge)
                     if (!showRecycleBinMode) Button(onClick = { yieldBeingEdited = null; showYieldDialog = true }) { Text(stringResource(R.string.add)) }
                 }
             }
             val yieldsList = if (showRecycleBinMode) deletedYields else yields
+            if (yieldsList.isEmpty() && showRecycleBinMode) item { Text(stringResource(R.string.no_deleted_harvests), color = MaterialTheme.colorScheme.onSurfaceVariant) }
             items(yieldsList) { yld ->
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                         Column {
                             Text("${yld.quantity} ${yld.unit}", style = MaterialTheme.typography.titleMedium)
-                            Text("Rate: ₹${yld.marketRate} / ${yld.unit}", style = MaterialTheme.typography.bodyMedium)
+                            Text("${stringResource(R.string.rate_per_unit)}: ₹${yld.marketRate} / ${yld.unit}", style = MaterialTheme.typography.bodyMedium)
                             Text(formatter.format(Date(yld.dateMillis)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                         }
                         Row {
@@ -220,7 +217,6 @@ fun PlotDetailScreen(
         }
     }
 
-    // --- TREATMENT DIALOG ---
     if (showTreatmentDialog) {
         val context = LocalContext.current
         var tName by remember { mutableStateOf(treatmentBeingEdited?.treatmentName ?: "") }
@@ -241,7 +237,6 @@ fun PlotDetailScreen(
             }
         }
 
-        // NEW: Dynamic translated dropdown!
         val applicationMethods = listOf(
             stringResource(R.string.method_foliar) to stringResource(R.string.desc_foliar),
             stringResource(R.string.method_drip) to stringResource(R.string.desc_drip),
@@ -252,7 +247,6 @@ fun PlotDetailScreen(
             stringResource(R.string.method_other) to stringResource(R.string.desc_other)
         )
 
-        // Set default method dynamically
         if (method.isBlank()) method = stringResource(R.string.method_foliar)
 
         AlertDialog(
@@ -265,7 +259,7 @@ fun PlotDetailScreen(
                             AsyncImage(model = imageUri, contentDescription = "Image", modifier = Modifier.fillMaxWidth().height(120.dp).clip(RoundedCornerShape(8.dp)).padding(bottom = 8.dp), contentScale = ContentScale.Crop)
                         }
                         OutlinedButton(onClick = { imagePickerLauncher.launch("image/*") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
-                            Text("Photo")
+                            Text(if (imageUri == null) stringResource(R.string.add_photo) else stringResource(R.string.change_photo))
                         }
 
                         OutlinedTextField(value = tName, onValueChange = { tName = it }, label = { Text(stringResource(R.string.treatment_name)) }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
@@ -310,7 +304,6 @@ fun PlotDetailScreen(
         }
     }
 
-    // --- EXPENSE DIALOG ---
     if (showExpenseDialog) {
         var category by remember { mutableStateOf(expenseBeingEdited?.category ?: "") }
         var cost by remember { mutableStateOf(expenseBeingEdited?.cost?.toString() ?: "") }
@@ -344,7 +337,6 @@ fun PlotDetailScreen(
         }
     }
 
-    // --- YIELD DIALOG ---
     if (showYieldDialog) {
         var quantity by remember { mutableStateOf(yieldBeingEdited?.quantity?.toString() ?: "") }
         var unit by remember { mutableStateOf(yieldBeingEdited?.unit ?: "kg") }

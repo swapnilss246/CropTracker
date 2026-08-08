@@ -5,7 +5,7 @@
     <string name="crop">Crop</string>
     <string name="breed">Breed/Variety</string>
     <string name="expenses">Expenses</string>
-    <string name="yields">Yields</string>
+    <string name="yields">Harvests</string>
     <string name="treatments">Crop Treatments</string>
     <string name="recycle_bin">Recycle Bin</string>
     <string name="save">Save</string>
@@ -50,7 +50,7 @@
     <string name="global_farm_stats">Global Farm Statistics</string>
     <string name="active_seasons_plots">Active Seasons (Plots)</string>
     <string name="total_active_expenses">Total Active Expenses</string>
-    <string name="estimated_revenue_yields">Estimated Revenue (Yields)</string>
+    <string name="estimated_revenue_yields">Estimated Revenue (Harvests)</string>
     <string name="estimated_net_profit">Estimated Net Profit</string>
     <string name="historical_plots">Historical Plots</string>
     <string name="no_historical_plots">No historical plots found.</string>
@@ -61,4 +61,16 @@
     <string name="delete_permanently">Delete Permanently</string>
     <string name="restore">Restore</string>
     <string name="deleted_on">Deleted</string>
+
+    <string name="plot_name">Plot Name</string>
+    <string name="add_photo">Add Photo</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="photo">Photo</string>
+    <string name="bin">Bin</string>
+    <string name="deleted_treatments">Deleted Treatments</string>
+    <string name="no_deleted_treatments">No deleted treatments.</string>
+    <string name="deleted_expenses">Deleted Expenses</string>
+    <string name="no_deleted_expenses">No deleted expenses.</string>
+    <string name="deleted_harvests">Deleted Harvests</string>
+    <string name="no_deleted_harvests">No deleted harvests.</string>
 </resources>

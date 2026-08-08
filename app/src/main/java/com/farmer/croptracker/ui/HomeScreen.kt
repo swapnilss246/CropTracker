@@ -1,6 +1,5 @@
 package com.farmer.croptracker.ui
 
-import androidx.compose.material.icons.filled.PieChart
 import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -15,10 +14,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Language // NEW: Language Icon!
+import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -66,7 +66,7 @@ fun HomeScreen(
     onPlotClick: (Int, String) -> Unit,
     onNavigateToRecycleBin: () -> Unit,
     onNavigateToHistory: () -> Unit,
-    onNavigateToDashboard: () -> Unit // NEW
+    onNavigateToDashboard: () -> Unit
 ) {
     val plotList by viewModel.allPlots.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
@@ -93,8 +93,9 @@ fun HomeScreen(
                     }
                     
                     Box {
+                        // NEW: Swapped MoreVert to Language Icon
                         IconButton(onClick = { showLangMenu = true }) {
-                            Icon(Icons.Filled.MoreVert, contentDescription = "Languages")
+                            Icon(Icons.Filled.Language, contentDescription = "Languages")
                         }
                         DropdownMenu(
                             expanded = showLangMenu,
@@ -189,7 +190,7 @@ fun HomeScreen(
 
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text(if (plotBeingEdited == null) stringResource(R.string.add_plot) else "Edit Plot") },
+            title = { Text(if (plotBeingEdited == null) stringResource(R.string.add_plot) else stringResource(R.string.edit)) },
             text = {
                 Column {
                     if (imageUri != null) {
@@ -204,14 +205,14 @@ fun HomeScreen(
                     OutlinedButton(
                         onClick = { imagePickerLauncher.launch("image/*") },
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-                    ) { Text(if (imageUri == null) "Add Photo" else "Change Photo") }
+                    ) { Text(if (imageUri == null) stringResource(R.string.add_photo) else stringResource(R.string.change_photo)) } // FIXED TRANSLATION
 
-                    OutlinedTextField(value = plotName, onValueChange = { plotName = it }, label = { Text("Plot Name") }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                    OutlinedTextField(value = plotName, onValueChange = { plotName = it }, label = { Text(stringResource(R.string.plot_name)) }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) // FIXED TRANSLATION
                     OutlinedTextField(value = cropName, onValueChange = { cropName = it }, label = { Text(stringResource(R.string.crop)) }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
                     OutlinedTextField(value = cropBreed, onValueChange = { cropBreed = it }, label = { Text(stringResource(R.string.breed)) }, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
                     
                     OutlinedButton(onClick = { showDatePicker = true }, modifier = Modifier.fillMaxWidth()) {
-                        Text("Date: ${formatDate(selectedDateMillis)}")
+                        Text("${stringResource(R.string.date)}: ${formatDate(selectedDateMillis)}")
                     }
                 }
             },

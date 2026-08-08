@@ -5,7 +5,7 @@
     <string name="crop">पीक</string>
     <string name="breed">वाण / जात</string>
     <string name="expenses">खर्च</string>
-    <string name="yields">उत्पादन</string>
+    <string name="yields">उत्पादन / काढणी</string>
     <string name="treatments">पीक प्रक्रिया</string>
     <string name="recycle_bin">रदद केलेल्या फाईल्स (बिन)</string>
     <string name="save">जतन करा</string>
@@ -61,4 +61,16 @@
     <string name="delete_permanently">कायमचे हटवा</string>
     <string name="restore">पुनर्संचयित करा</string>
     <string name="deleted_on">हटवले</string>
+
+    <string name="plot_name">प्लॉटचे नाव</string>
+    <string name="add_photo">फोटो जोडा</string>
+    <string name="change_photo">फोटो बदला</string>
+    <string name="photo">फोटो</string>
+    <string name="bin">बिन</string>
+    <string name="deleted_treatments">हटवलेल्या प्रक्रिया</string>
+    <string name="no_deleted_treatments">कोणत्याही हटवलेल्या प्रक्रिया नाहीत.</string>
+    <string name="deleted_expenses">हटवलेले खर्च</string>
+    <string name="no_deleted_expenses">कोणतेही हटवलेले खर्च नाहीत.</string>
+    <string name="deleted_harvests">हटवलेले उत्पादन</string>
+    <string name="no_deleted_harvests">कोणतेही हटवलेले उत्पादन नाही.</string>
 </resources>

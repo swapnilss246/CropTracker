@@ -5,7 +5,7 @@
     <string name="crop">फसल</string>
     <string name="breed">किस्म / प्रजाति</string>
     <string name="expenses">खर्च</string>
-    <string name="yields">उत्पादन (Yields)</string>
+    <string name="yields">उत्पादन (फसल कटाई)</string>
     <string name="treatments">फसल उपचार</string>
     <string name="recycle_bin">रीसायकल बिन</string>
     <string name="save">सुरक्षित करें</string>
@@ -61,4 +61,16 @@
     <string name="delete_permanently">स्थायी रूप से हटाएं</string>
     <string name="restore">पुनर्स्थापित करें</string>
     <string name="deleted_on">हटाया गया</string>
+
+    <string name="plot_name">प्लॉट का नाम</string>
+    <string name="add_photo">फोटो जोड़ें</string>
+    <string name="change_photo">फोटो बदलें</string>
+    <string name="photo">फोटो</string>
+    <string name="bin">बिन</string>
+    <string name="deleted_treatments">हटाए गए उपचार</string>
+    <string name="no_deleted_treatments">कोई हटाया गया उपचार नहीं है।</string>
+    <string name="deleted_expenses">हटाए गए खर्च</string>
+    <string name="no_deleted_expenses">कोई हटाया गया खर्च नहीं है।</string>
+    <string name="deleted_harvests">हटाई गई फसल / उपज</string>
+    <string name="no_deleted_harvests">कोई हटाई गई उपज नहीं है।</string>
 </resources>
