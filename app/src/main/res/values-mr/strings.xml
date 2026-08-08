@@ -5,9 +5,44 @@
     <string name="crop">पीक</string>
     <string name="breed">वाण / जात</string>
     <string name="expenses">खर्च</string>
-    <string name="yields">उत्पादन आणि काढणी</string>
-    <string name="treatments">पीक प्रक्रिया (खते/फवारणी)</string>
+    <string name="yields">उत्पादन</string>
+    <string name="treatments">पीक प्रक्रिया</string>
     <string name="recycle_bin">रदद केलेल्या फाईल्स (बिन)</string>
     <string name="save">जतन करा</string>
     <string name="cancel">रद्द करा</string>
+
+    <!-- Plot Details & Common -->
+    <string name="add">जोडा</string>
+    <string name="edit">बदल करा</string>
+    <string name="delete">काढून टाका</string>
+    <string name="profit">नफा</string>
+    <string name="revenue">उत्पन्न</string>
+    <string name="category">श्रेणी</string>
+    <string name="cost">किंमत / खर्च</string>
+    <string name="quantity">प्रमाण</string>
+    <string name="unit">एकक (kg, ton)</string>
+    <string name="rate_per_unit">दर प्रति एकक</string>
+    <string name="date">तारीख</string>
+
+    <!-- Treatments -->
+    <string name="treatment_name">नाव (उदा. युरिया, नीम तेल)</string>
+    <string name="chemical_qty">रसायनाचे प्रमाण</string>
+    <string name="water_qty">पाण्याचे प्रमाण</string>
+    <string name="application_method">वापरण्याची पद्धत</string>
+    <string name="description">वर्णन / नोट्स</string>
+
+    <string name="method_foliar">फवारणी (Foliar Spray)</string>
+    <string name="desc_foliar">पानांवर थेट फवारणी</string>
+    <string name="method_drip">ठिबक / फर्टिगेशन</string>
+    <string name="desc_drip">ठिबक सिंचनातून देणे</string>
+    <string name="method_soil">आळवणी (Soil Drenching)</string>
+    <string name="desc_soil">मुळांजवळ थेट औषध सोडणे</string>
+    <string name="method_broadcasting">फेकून देणे (Broadcasting)</string>
+    <string name="desc_broadcasting">हाताने किंवा मशीनने खत फेकणे</string>
+    <string name="method_seed">बीजप्रक्रिया</string>
+    <string name="desc_seed">पेरणीपूर्वी बियाणांवर औषध लावणे</string>
+    <string name="method_root">मूळ बुडवणे</string>
+    <string name="desc_root">लागवडीपूर्वी रोपांची मुळे बुडवणे</string>
+    <string name="method_other">इतर</string>
+    <string name="desc_other">इतर पद्धत</string>
 </resources>

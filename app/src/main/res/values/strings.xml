@@ -5,9 +5,44 @@
     <string name="crop">Crop</string>
     <string name="breed">Breed/Variety</string>
     <string name="expenses">Expenses</string>
-    <string name="yields">Yields &amp; Harvests</string>
+    <string name="yields">Yields</string>
     <string name="treatments">Crop Treatments</string>
     <string name="recycle_bin">Recycle Bin</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
+
+    <!-- Plot Details & Common -->
+    <string name="add">Add</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="profit">Profit</string>
+    <string name="revenue">Revenue</string>
+    <string name="category">Category</string>
+    <string name="cost">Cost</string>
+    <string name="quantity">Quantity</string>
+    <string name="unit">Unit (kg, ton)</string>
+    <string name="rate_per_unit">Rate per Unit</string>
+    <string name="date">Date</string>
+
+    <!-- Treatments -->
+    <string name="treatment_name">Name (e.g. Urea, Neem)</string>
+    <string name="chemical_qty">Chemical Qty</string>
+    <string name="water_qty">Water Qty</string>
+    <string name="application_method">Application Method</string>
+    <string name="description">Description / Notes</string>
+
+    <string name="method_foliar">Foliar Spray</string>
+    <string name="desc_foliar">Spraying liquid directly onto the leaves</string>
+    <string name="method_drip">Drip / Fertigation</string>
+    <string name="desc_drip">Injecting into the drip irrigation system</string>
+    <string name="method_soil">Soil Drenching</string>
+    <string name="desc_soil">Pouring liquid directly onto the soil</string>
+    <string name="method_broadcasting">Broadcasting</string>
+    <string name="desc_broadcasting">Spreading dry granules by hand or machine</string>
+    <string name="method_seed">Seed Treatment</string>
+    <string name="desc_seed">Coating seeds with chemicals before planting</string>
+    <string name="method_root">Root Dipping</string>
+    <string name="desc_root">Dipping seedling roots before transplanting</string>
+    <string name="method_other">Other</string>
+    <string name="desc_other">Custom or unlisted method</string>
 </resources>

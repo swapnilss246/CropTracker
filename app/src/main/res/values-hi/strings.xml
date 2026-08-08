@@ -5,9 +5,44 @@
     <string name="crop">फसल</string>
     <string name="breed">किस्म / प्रजाति</string>
     <string name="expenses">खर्च</string>
-    <string name="yields">उत्पादन और फसल कटाई</string>
-    <string name="treatments">फसल उपचार (खाद/कीटनाशक)</string>
+    <string name="yields">उत्पादन (Yields)</string>
+    <string name="treatments">फसल उपचार</string>
     <string name="recycle_bin">रीसायकल बिन</string>
     <string name="save">सुरक्षित करें</string>
     <string name="cancel">रद्द करें</string>
+
+    <!-- Plot Details & Common -->
+    <string name="add">जोड़ें</string>
+    <string name="edit">बदलें</string>
+    <string name="delete">हटाएं</string>
+    <string name="profit">मुनाफा</string>
+    <string name="revenue">आय</string>
+    <string name="category">श्रेणी</string>
+    <string name="cost">लागत / खर्च</string>
+    <string name="quantity">मात्रा</string>
+    <string name="unit">इकाई (kg, ton)</string>
+    <string name="rate_per_unit">दर प्रति इकाई</string>
+    <string name="date">तारीख</string>
+
+    <!-- Treatments -->
+    <string name="treatment_name">नाम (जैसे यूरिया, नीम तेल)</string>
+    <string name="chemical_qty">रसायन की मात्रा</string>
+    <string name="water_qty">पानी की मात्रा</string>
+    <string name="application_method">उपयोग का तरीका</string>
+    <string name="description">विवरण / नोट्स</string>
+
+    <string name="method_foliar">पर्ण छिड़काव (Foliar Spray)</string>
+    <string name="desc_foliar">सीधे पत्तों पर तरल का छिड़काव</string>
+    <string name="method_drip">ड्रिप / फर्टिगेशन</string>
+    <string name="desc_drip">ड्रिप सिंचाई प्रणाली में डालना</string>
+    <string name="method_soil">मिट्टी में ड्रेन्चिंग</string>
+    <string name="desc_soil">सीधे मिट्टी में तरल डालना</string>
+    <string name="method_broadcasting">छिड़काव (Broadcasting)</string>
+    <string name="desc_broadcasting">हाथ या मशीन से सूखे दाने फैलाना</string>
+    <string name="method_seed">बीज उपचार</string>
+    <string name="desc_seed">बुवाई से पहले बीजों पर रसायन लगाना</string>
+    <string name="method_root">जड़ डुबोना</string>
+    <string name="desc_root">रोपाई से पहले जड़ों को डुबोना</string>
+    <string name="method_other">अन्य</string>
+    <string name="desc_other">कस्टम या असूचीबद्ध तरीका</string>
 </resources>
