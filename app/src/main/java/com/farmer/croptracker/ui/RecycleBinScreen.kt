@@ -11,7 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.farmer.croptracker.R
 import com.farmer.croptracker.viewmodel.CropViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -19,28 +21,22 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecycleBinScreen(
-    viewModel: CropViewModel,
-    onNavigateBack: () -> Unit
-) {
+fun RecycleBinScreen(viewModel: CropViewModel, onNavigateBack: () -> Unit) {
     val deletedPlots by viewModel.deletedPlots.collectAsState(initial = emptyList())
     val formatter = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Deleted Plots") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
-                },
+                title = { Text(stringResource(R.string.deleted_plots)) },
+                navigationIcon = { IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.errorContainer)
             )
         }
     ) { innerPadding ->
-        
         if (deletedPlots.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-                Text("Recycle Bin is empty", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.recycle_bin_empty), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -49,12 +45,12 @@ fun RecycleBinScreen(
                         Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(plot.plotName, style = MaterialTheme.typography.titleMedium)
-                                Text("Crop: ${plot.cropName}", style = MaterialTheme.typography.bodyMedium)
-                                Text("Deleted: ${formatter.format(Date(plot.deletedAtMillis))}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                                Text("${stringResource(R.string.crop)}: ${plot.cropName}", style = MaterialTheme.typography.bodyMedium)
+                                Text("${stringResource(R.string.deleted_on)}: ${formatter.format(Date(plot.deletedAtMillis))}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                             }
                             Row {
-                                IconButton(onClick = { viewModel.restorePlot(plot) }) { Icon(Icons.Filled.Refresh, "Restore", tint = MaterialTheme.colorScheme.primary) }
-                                IconButton(onClick = { viewModel.permanentlyDeletePlot(plot) }) { Icon(Icons.Filled.Delete, "Delete Permanently", tint = MaterialTheme.colorScheme.error) }
+                                IconButton(onClick = { viewModel.restorePlot(plot) }) { Icon(Icons.Filled.Refresh, stringResource(R.string.restore), tint = MaterialTheme.colorScheme.primary) }
+                                IconButton(onClick = { viewModel.permanentlyDeletePlot(plot) }) { Icon(Icons.Filled.Delete, stringResource(R.string.delete_permanently), tint = MaterialTheme.colorScheme.error) }
                             }
                         }
                     }

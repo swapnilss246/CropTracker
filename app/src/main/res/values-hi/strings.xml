@@ -45,4 +45,20 @@
     <string name="desc_root">रोपाई से पहले जड़ों को डुबोना</string>
     <string name="method_other">अन्य</string>
     <string name="desc_other">कस्टम या असूचीबद्ध तरीका</string>
+
+    <!-- Dashboard & History & Bin -->
+    <string name="global_farm_stats">ग्लोबल फार्म आंकड़े</string>
+    <string name="active_seasons_plots">सक्रिय सीजन (प्लॉट)</string>
+    <string name="total_active_expenses">कुल सक्रिय खर्च</string>
+    <string name="estimated_revenue_yields">अनुमानित आय (उत्पादन)</string>
+    <string name="estimated_net_profit">अनुमानित शुद्ध मुनाफा</string>
+    <string name="historical_plots">ऐतिहासिक प्लॉट</string>
+    <string name="no_historical_plots">कोई ऐतिहासिक प्लॉट नहीं मिला।</string>
+    <string name="planted">लगाया गया</string>
+    <string name="restore_to_active">सक्रिय में पुनर्स्थापित करें</string>
+    <string name="deleted_plots">हटाए गए प्लॉट</string>
+    <string name="recycle_bin_empty">रीसायकल बिन खाली है</string>
+    <string name="delete_permanently">स्थायी रूप से हटाएं</string>
+    <string name="restore">पुनर्स्थापित करें</string>
+    <string name="deleted_on">हटाया गया</string>
 </resources>

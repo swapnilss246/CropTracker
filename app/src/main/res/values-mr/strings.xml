@@ -45,4 +45,20 @@
     <string name="desc_root">लागवडीपूर्वी रोपांची मुळे बुडवणे</string>
     <string name="method_other">इतर</string>
     <string name="desc_other">इतर पद्धत</string>
+
+    <!-- Dashboard & History & Bin -->
+    <string name="global_farm_stats">एकूण शेतीची आकडेवारी</string>
+    <string name="active_seasons_plots">सक्रिय हंगाम (प्लॉट)</string>
+    <string name="total_active_expenses">एकूण चालू खर्च</string>
+    <string name="estimated_revenue_yields">अंदाजे उत्पन्न (काढणी)</string>
+    <string name="estimated_net_profit">अंदाजे निव्वळ नफा</string>
+    <string name="historical_plots">मागील हंगाम (Historical Plots)</string>
+    <string name="no_historical_plots">कोणतेही मागील प्लॉट आढळले नाहीत.</string>
+    <string name="planted">लागवड</string>
+    <string name="restore_to_active">पुन्हा सक्रिय करा</string>
+    <string name="deleted_plots">हटवलेले प्लॉट</string>
+    <string name="recycle_bin_empty">बिन रिक्त आहे</string>
+    <string name="delete_permanently">कायमचे हटवा</string>
+    <string name="restore">पुनर्संचयित करा</string>
+    <string name="deleted_on">हटवले</string>
 </resources>

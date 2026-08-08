@@ -11,7 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.farmer.croptracker.R
 import com.farmer.croptracker.viewmodel.CropViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -19,27 +21,22 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoricalPlotsScreen(
-    viewModel: CropViewModel,
-    onNavigateBack: () -> Unit
-) {
+fun HistoricalPlotsScreen(viewModel: CropViewModel, onNavigateBack: () -> Unit) {
     val archivedPlots by viewModel.archivedPlots.collectAsState(initial = emptyList())
     val formatter = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Historical Plots") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
-                },
+                title = { Text(stringResource(R.string.historical_plots)) },
+                navigationIcon = { IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
             )
         }
     ) { innerPadding ->
         if (archivedPlots.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-                Text("No historical plots found.", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.no_historical_plots), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -48,14 +45,12 @@ fun HistoricalPlotsScreen(
                         Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(plot.plotName, style = MaterialTheme.typography.titleMedium)
-                                Text("Crop: ${plot.cropName}", style = MaterialTheme.typography.bodyMedium)
-                                Text("Planted: ${formatter.format(Date(plot.createdAt))}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                                Text("${stringResource(R.string.crop)}: ${plot.cropName}", style = MaterialTheme.typography.bodyMedium)
+                                Text("${stringResource(R.string.planted)}: ${formatter.format(Date(plot.createdAt))}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                             }
                             Row {
-                                // Restore back to Active
-                                IconButton(onClick = { viewModel.unarchivePlot(plot) }) { Icon(Icons.Filled.Refresh, "Restore to Active", tint = MaterialTheme.colorScheme.primary) }
-                                // Move to Recycle Bin
-                                IconButton(onClick = { viewModel.deletePlot(plot) }) { Icon(Icons.Filled.Delete, "Delete", tint = MaterialTheme.colorScheme.error) }
+                                IconButton(onClick = { viewModel.unarchivePlot(plot) }) { Icon(Icons.Filled.Refresh, stringResource(R.string.restore_to_active), tint = MaterialTheme.colorScheme.primary) }
+                                IconButton(onClick = { viewModel.deletePlot(plot) }) { Icon(Icons.Filled.Delete, stringResource(R.string.delete), tint = MaterialTheme.colorScheme.error) }
                             }
                         }
                     }

@@ -45,4 +45,20 @@
     <string name="desc_root">Dipping seedling roots before transplanting</string>
     <string name="method_other">Other</string>
     <string name="desc_other">Custom or unlisted method</string>
+
+    <!-- Dashboard & History & Bin -->
+    <string name="global_farm_stats">Global Farm Statistics</string>
+    <string name="active_seasons_plots">Active Seasons (Plots)</string>
+    <string name="total_active_expenses">Total Active Expenses</string>
+    <string name="estimated_revenue_yields">Estimated Revenue (Yields)</string>
+    <string name="estimated_net_profit">Estimated Net Profit</string>
+    <string name="historical_plots">Historical Plots</string>
+    <string name="no_historical_plots">No historical plots found.</string>
+    <string name="planted">Planted</string>
+    <string name="restore_to_active">Restore to Active</string>
+    <string name="deleted_plots">Deleted Plots</string>
+    <string name="recycle_bin_empty">Recycle Bin is empty</string>
+    <string name="delete_permanently">Delete Permanently</string>
+    <string name="restore">Restore</string>
+    <string name="deleted_on">Deleted</string>
 </resources>
