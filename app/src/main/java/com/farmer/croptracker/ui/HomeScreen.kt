@@ -17,7 +17,7 @@ import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Language // NEW: Language Icon!
+import androidx.compose.material.icons.filled.Translate // NEW: Language Switch Icon!
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -93,9 +93,9 @@ fun HomeScreen(
                     }
                     
                     Box {
-                        // NEW: Swapped MoreVert to Language Icon
+                        // NEW: Swapped Language to Translate Icon
                         IconButton(onClick = { showLangMenu = true }) {
-                            Icon(Icons.Filled.Language, contentDescription = "Languages")
+                            Icon(Icons.Filled.Translate, contentDescription = "Languages")
                         }
                         DropdownMenu(
                             expanded = showLangMenu,
